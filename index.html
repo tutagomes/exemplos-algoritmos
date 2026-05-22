@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exemplos de Algoritmos</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --coral: #FF6B6B;
+    --yellow: #FFD93D;
+    --teal: #4ECDC4;
+    --purple: #A78BFA;
+    --blue: #60A5FA;
+    --green: #6EE7B7;
+    --indigo: #1e1b4b;
+    --bg: #FFF8F0;
+    --surface: #FFFFFF;
+    --text: #2D2D2D;
+    --muted: #7A7A8C;
+    --border: #E8E0F0;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem 1rem 4rem;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle, #d8b4fe44 1.5px, transparent 1.5px),
+      radial-gradient(circle, #fbbf2444 1.5px, transparent 1.5px);
+    background-size: 36px 36px, 36px 36px;
+    background-position: 0 0, 18px 18px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 920px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .header-badge {
+    display: inline-block;
+    background: var(--yellow);
+    color: #92400e;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 4px 14px;
+    border-radius: 999px;
+    margin-bottom: 0.75rem;
+    border: 2px solid #f59e0b44;
+  }
+
+  h1 {
+    font-family: 'Fredoka', sans-serif;
+    font-size: clamp(1.9rem, 5vw, 3rem);
+    font-weight: 600;
+    line-height: 1.1;
+    background: linear-gradient(135deg, var(--coral) 0%, var(--purple) 55%, var(--blue) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.6rem;
+  }
+
+  header p {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 560px;
+    margin: 0 auto;
+    line-height: 1.65;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 1.8rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: calc(var(--radius) + 4px);
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+    transition: transform 0.16s, box-shadow 0.16s, border-color 0.16s;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+    border-color: #d8c8f3;
+  }
+
+  .card-top {
+    padding: 1rem 1.2rem;
+    border-bottom: 2px solid var(--border);
+    background: linear-gradient(135deg, #fff7ed, #fdf4ff);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .card-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    flex-shrink: 0;
+  }
+
+  .icon-pixel {
+    background: #ede9fe;
+    color: #5b21b6;
+  }
+
+  .icon-maze {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  .card-title {
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .card-body {
+    padding: 1.15rem 1.2rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    flex: 1;
+  }
+
+  .card-body p {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    background: #f7f4ff;
+    color: #5b21b6;
+    border: 1.5px solid #ddd6fe;
+  }
+
+  .cta {
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    border-radius: var(--radius-sm);
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--indigo);
+    color: #fff;
+    border: 2px solid transparent;
+  }
+
+  .card.pixel .cta {
+    background: linear-gradient(135deg, var(--purple), var(--blue));
+  }
+
+  .card.maze .cta {
+    background: linear-gradient(135deg, var(--coral), var(--yellow));
+    color: #7c2d12;
+  }
+
+  .note {
+    background: rgba(255, 255, 255, 0.78);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    text-align: center;
+    backdrop-filter: blur(4px);
+  }
+
+  footer {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 12px;
+    color: #b8afd0;
+  }
+
+  @media (max-width: 640px) {
+    body { padding-top: 1.4rem; }
+    .card-top { padding: 0.95rem 1rem; }
+    .card-body { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <div class="header-badge">📚 Exemplos de Algoritmos</div>
+    <h1>Escolha uma página</h1>
+    <p>Este índice reúne as duas atividades disponíveis no projeto. Os links abaixo usam caminhos relativos e mantêm o mesmo estilo visual das páginas existentes.</p>
+  </header>
+
+  <div class="cards">
+    <a class="card pixel" href="pixel-grid.html">
+      <div class="card-top">
+        <div class="card-icon icon-pixel">🎨</div>
+        <div class="card-title">Desenho por Sequências</div>
+      </div>
+      <div class="card-body">
+        <p>Monte linhas de pixels em branco e preto para formar imagens. A atividade destaca padrões, sequências e leitura de instruções.</p>
+        <div class="meta">
+          <span class="tag">Algoritmo visual</span>
+          <span class="tag">Sequências</span>
+        </div>
+        <div class="cta">Abrir página</div>
+      </div>
+    </a>
+
+    <a class="card maze" href="robo-labirinto.html">
+      <div class="card-top">
+        <div class="card-icon icon-maze">🤖</div>
+        <div class="card-title">Robô no Labirinto</div>
+      </div>
+      <div class="card-body">
+        <p>Escreva uma sequência de comandos para guiar o robô até a meta. Cada passo reforça lógica, planejamento e depuração.</p>
+        <div class="meta">
+          <span class="tag">Pensamento computacional</span>
+          <span class="tag">Comandos</span>
+        </div>
+        <div class="cta">Abrir página</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="note">Os dois exemplos foram desenhados para compartilhar a mesma identidade visual, então o índice segue os mesmos cartões, cores suaves e tipografia amigável.</div>
+
+  <footer>Garotas APPlicadas · Exemplos de Algoritmos</footer>
+</div>
+</body>
+</html>

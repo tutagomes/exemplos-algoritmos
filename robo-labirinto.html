@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robô no Labirinto</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --coral:#FF6B6B;--yellow:#FFD93D;--teal:#4ECDC4;--purple:#A78BFA;--blue:#60A5FA;--green:#6EE7B7;
+  --indigo:#1e1b4b;--indigo2:#312e81;--indigo3:#4338ca;
+  --bg:#FFF8F0;--surface:#FFFFFF;--text:#2D2D2D;--muted:#7A7A8C;--border:#E8E0F0;
+  --radius:16px;--radius-sm:10px;--cell:44px;
+}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:2rem 1rem 4rem}
+body::before{content:'';position:fixed;inset:0;background-image:radial-gradient(circle,#d8b4fe44 1.5px,transparent 1.5px),radial-gradient(circle,#fbbf2444 1.5px,transparent 1.5px);background-size:36px 36px,36px 36px;background-position:0 0,18px 18px;pointer-events:none;z-index:0}
+.wrapper{position:relative;z-index:1;max-width:900px;margin:0 auto}
+
+/* Header */
+header{text-align:center;margin-bottom:1.75rem}
+.header-badge{display:inline-block;background:var(--yellow);color:#92400e;font-family:'Fredoka',sans-serif;font-size:13px;font-weight:600;letter-spacing:.04em;padding:4px 14px;border-radius:999px;margin-bottom:.6rem;border:2px solid #f59e0b44}
+h1{font-family:'Fredoka',sans-serif;font-size:clamp(1.8rem,5vw,2.6rem);font-weight:600;line-height:1.1;background:linear-gradient(135deg,var(--coral) 0%,var(--purple) 55%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.4rem}
+header p{font-size:14px;color:var(--muted);max-width:500px;margin:0 auto;line-height:1.6}
+.kbd{display:inline-block;background:#f0ebff;color:#4c1d95;border:1.5px solid #c4b5fd;border-radius:5px;padding:1px 6px;font-size:12px;font-family:'Nunito',monospace;font-weight:700}
+
+/* Level tabs */
+.levels{display:flex;gap:8px;justify-content:center;margin-bottom:1.5rem;flex-wrap:wrap}
+.lvl-btn{padding:7px 16px;border:2px solid var(--border);border-radius:999px;background:var(--surface);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;color:var(--muted);display:flex;align-items:center;gap:5px}
+.lvl-btn.done{border-color:#10b98155}
+.lvl-btn .badge{font-size:10px;background:#d1fae5;color:#065f46;border-radius:999px;padding:1px 6px;display:none}
+.lvl-btn.done .badge{display:inline}
+.lvl-btn.active{background:var(--indigo);border-color:var(--indigo);color:#fff}
+.lvl-btn.active .badge{background:#ffffff33;color:#fff}
+.lvl-btn:hover:not(.active){border-color:var(--purple);color:var(--purple)}
+.stars{font-size:9px;letter-spacing:1px;opacity:.7}
+
+/* Main card */
+.main-card{background:var(--surface);border:2px solid var(--border);border-radius:calc(var(--radius)+4px);overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.06)}
+.card-top{padding:.9rem 1.4rem;border-bottom:2px solid var(--border);background:linear-gradient(135deg,#fff7ed,#fdf4ff);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.card-top h2{font-family:'Fredoka',sans-serif;font-size:1.05rem;font-weight:600;color:var(--text)}
+.card-top h2 span{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--coral);margin-right:6px}
+.card-body{display:grid;grid-template-columns:auto 1fr}
+@media(max-width:640px){.card-body{grid-template-columns:1fr}}
+
+/* Maze panel */
+.maze-panel{padding:1.25rem;border-right:2px solid var(--border);display:flex;flex-direction:column;align-items:flex-start;gap:10px;background:linear-gradient(160deg,#fdf4ff 0%,#f0f9ff 100%)}
+@media(max-width:640px){.maze-panel{border-right:none;border-bottom:2px solid var(--border);align-items:center}}
+.maze-legend{display:flex;gap:10px;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);font-weight:600}
+.leg-dot{width:16px;height:16px;border-radius:4px;flex-shrink:0}
+
+/* Grid */
+.maze-grid{display:grid;border:3px solid var(--indigo);border-radius:8px;overflow:hidden;line-height:1}
+.cell{width:var(--cell);height:var(--cell);display:flex;align-items:center;justify-content:center;font-size:calc(var(--cell)*0.5);transition:background .15s;position:relative;user-select:none}
+.cell.wall{background:var(--indigo)}
+.cell.wall::after{content:'';position:absolute;inset:2px;background:var(--indigo2);border-radius:2px;opacity:.3}
+.cell.path{background:#f5f0ff}
+.cell.trail{background:#e0d7ff}
+.cell.goal-cell{background:#d1fae5}
+.cell.robot-cell{background:#fef3c7;animation:rbpulse .55s ease-in-out infinite alternate}
+.cell.crash{background:#fee2e2;animation:shake .28s ease}
+.cell.win{background:#d1fae5;animation:winpop .4s ease}
+@keyframes rbpulse{from{background:#fef3c7}to{background:#fde68a}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+@keyframes winpop{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+
+/* Controls panel */
+.ctrl-panel{padding:1.25rem 1.4rem;display:flex;flex-direction:column;gap:1rem;min-width:0}
+
+.section-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+
+/* D-pad */
+.dpad-wrap{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.dpad{display:grid;grid-template-areas:'. up .' 'left . right' '. down .';grid-template-columns:52px 52px 52px;gap:5px}
+.dp{width:52px;height:52px;border:2px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;font-family:'Nunito',sans-serif;font-weight:700;color:var(--text)}
+.dp:hover{background:#ede9fe;border-color:var(--purple);color:var(--indigo)}
+.dp:active{transform:scale(.92);background:#ddd6fe}
+.dp:disabled{opacity:.35;cursor:not-allowed}
+.dp.up{grid-area:up}.dp.dn{grid-area:down}.dp.lt{grid-area:left}.dp.rt{grid-area:right}
+.key-hint{font-size:11px;color:var(--muted);line-height:1.7;align-self:flex-end;padding-bottom:4px}
+
+/* Command queue */
+.cmd-wrap{background:var(--bg);border:2px solid var(--border);border-radius:var(--radius-sm);padding:8px;min-height:54px;max-height:108px;overflow-y:auto;display:flex;flex-wrap:wrap;gap:5px;align-content:flex-start;transition:border-color .15s}
+.cmd-wrap.running{border-color:#a78bfa}
+.cmd-wrap::-webkit-scrollbar{width:4px}
+.cmd-wrap::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.cmd-empty{font-size:13px;color:var(--muted);font-style:italic;padding:2px 4px}
+.pill{display:inline-flex;align-items:center;gap:2px;padding:4px 7px;border-radius:999px;background:#ede9fe;color:#3c1d8f;font-size:15px;font-weight:700;cursor:pointer;border:2px solid transparent;transition:all .12s;user-select:none;line-height:1}
+.pill:hover{background:#ddd6fe}
+.pill.active{background:var(--purple);color:#fff;border-color:#7c3aed;transform:scale(1.08)}
+.pill.done{background:#c4b5fd55;color:#7c3aed}
+.pill.bad{background:#fee2e2;color:#7f1d1d;border-color:#fca5a5}
+.pill-x{font-size:10px;opacity:.55;margin-left:1px;transition:opacity .1s}
+.pill:hover .pill-x{opacity:1}
+
+/* Stats bar */
+.stats-bar{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:var(--bg);border:1.5px solid var(--border);border-radius:999px;padding:3px 11px;font-size:12px;font-weight:700;color:var(--muted)}
+.chip em{color:var(--text);font-style:normal}
+
+/* Action buttons */
+.actions{display:flex;gap:7px;flex-wrap:wrap}
+.abtn{height:38px;padding:0 14px;border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:2px solid;transition:all .15s;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.abtn.run{background:var(--indigo);border-color:var(--indigo);color:#fff}
+.abtn.run:hover{background:var(--indigo2)}
+.abtn.step{background:transparent;border-color:var(--purple);color:#4c1d95}
+.abtn.step:hover{background:#ede9fe}
+.abtn.reset{background:transparent;border-color:var(--border);color:var(--muted)}
+.abtn.reset:hover{border-color:var(--teal);color:#0f766e}
+.abtn.clr{background:transparent;border-color:var(--border);color:var(--muted)}
+.abtn.clr:hover{border-color:var(--coral);color:#b91c1c}
+.abtn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+
+/* Status message */
+.status{padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:700;display:none;line-height:1.5}
+.status.success{background:#d1fae5;color:#065f46;display:block}
+.status.error{background:#fee2e2;color:#7f1d1d;display:block}
+.status.info{background:#ede9fe;color:#4c1d95;display:block}
+.status.warn{background:#fef3c7;color:#78350f;display:block}
+
+footer{text-align:center;margin-top:2rem;font-size:12px;color:#b8afd0}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<header>
+  <div class="header-badge">🤖 Pensamento Computacional</div>
+  <h1>Robô no Labirinto</h1>
+  <p>Monte um programa de comandos para guiar o robô até a 🚩. Cada instrução é executada em sequência — o robô não pensa, só obedece!</p>
+</header>
+
+<div class="levels" id="lvl-tabs">
+  <button class="lvl-btn active" onclick="loadLevel(0,this)">Nível 1 <span class="stars">★</span> <span class="badge">✓</span></button>
+  <button class="lvl-btn" onclick="loadLevel(1,this)">Nível 2 <span class="stars">★★</span> <span class="badge">✓</span></button>
+  <button class="lvl-btn" onclick="loadLevel(2,this)">Nível 3 <span class="stars">★★★</span> <span class="badge">✓</span></button>
+  <button class="lvl-btn" onclick="loadLevel(3,this)">Nível 4 <span class="stars">★★★★</span> <span class="badge">✓</span></button>
+</div>
+
+<div class="main-card">
+  <div class="card-top">
+    <h2><span></span><span id="maze-name">Nível 1 — Primeiros passos</span></h2>
+    <div style="font-size:12px;color:var(--muted)">Use as setas ou teclado <span class="kbd">↑↓←→</span></div>
+  </div>
+  <div class="card-body">
+
+    <div class="maze-panel">
+      <div class="maze-grid" id="mg"></div>
+      <div class="maze-legend">
+        <div class="leg"><div class="leg-dot" style="background:#1e1b4b"></div>Parede</div>
+        <div class="leg"><div class="leg-dot" style="background:#f5f0ff;border:1.5px solid #e0d7ff"></div>Caminho</div>
+        <div class="leg"><div class="leg-dot" style="background:#e0d7ff"></div>Rastro</div>
+        <div class="leg"><div class="leg-dot" style="background:#fef3c7"></div>Robô 🤖</div>
+        <div class="leg"><div class="leg-dot" style="background:#d1fae5"></div>Meta 🚩</div>
+      </div>
+    </div>
+
+    <div class="ctrl-panel">
+      <div>
+        <div class="section-label">Controles</div>
+        <div class="dpad-wrap">
+          <div class="dpad">
+            <button class="dp up"  id="dp-up"    onclick="addCmd('up')"   title="Seta ↑">↑</button>
+            <button class="dp lt"  id="dp-left"  onclick="addCmd('left')" title="Seta ←">←</button>
+            <button class="dp rt"  id="dp-right" onclick="addCmd('right')"title="Seta →">→</button>
+            <button class="dp dn"  id="dp-down"  onclick="addCmd('down')" title="Seta ↓">↓</button>
+          </div>
+          <div class="key-hint">Dica: use as teclas<br>de seta do teclado!</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label" style="display:flex;justify-content:space-between;align-items:center">
+          <span>Programa <span id="cmd-counter" style="font-weight:400;text-transform:none;letter-spacing:0;font-size:11px"></span></span>
+          <span style="font-size:11px;font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0">Clique em um comando para apagar</span>
+        </div>
+        <div class="cmd-wrap" id="cmd-wrap">
+          <span class="cmd-empty" id="cmd-empty">Adicione comandos com as setas ↑</span>
+        </div>
+      </div>
+
+      <div class="stats-bar">
+        <div class="chip">Comandos: <em id="s-total">0</em></div>
+        <div class="chip">Executando: <em id="s-step">—</em></div>
+      </div>
+
+      <div class="actions">
+        <button class="abtn run"   id="btn-run"   onclick="runAll()">▶ Executar</button>
+        <button class="abtn step"  id="btn-step"  onclick="stepOnce()">⏭ Passo a passo</button>
+        <button class="abtn reset" id="btn-reset" onclick="resetRobot()">↺ Resetar robô</button>
+        <button class="abtn clr"   id="btn-clr"   onclick="clearCmds()">✕ Limpar tudo</button>
+      </div>
+
+      <div class="status" id="status"></div>
+    </div>
+
+  </div>
+</div>
+
+<footer>Garotas APPlicadas · Robô no Labirinto</footer>
+</div>
+
+<script>
+const MAZES = [
+  {
+    name: 'Nível 1 — Primeiros passos',
+    rows: 7, cols: 7,
+    grid: [
+      [0,0,0,0,1,1,1],
+      [1,1,1,0,1,1,1],
+      [1,1,1,0,1,1,1],
+      [1,1,1,0,0,0,1],
+      [1,1,1,1,1,0,1],
+      [1,1,1,1,1,0,1],
+      [1,1,1,1,1,0,1]
+    ],
+    start:{r:0,c:0}, goal:{r:6,c:5}
+  },
+  {
+    name: 'Nível 2 — Curvas e desvios',
+    rows: 7, cols: 8,
+    grid: [
+      [0,0,1,1,1,1,1,1],
+      [0,0,1,1,1,1,1,1],
+      [0,0,0,0,0,1,1,1],
+      [1,1,1,1,0,1,1,1],
+      [1,1,1,1,0,0,0,1],
+      [1,1,1,1,1,1,0,1],
+      [1,1,1,1,1,1,0,1]
+    ],
+    start:{r:0,c:0}, goal:{r:6,c:6}
+  },
+  {
+    name: 'Nível 3 — Becos sem saída',
+    rows: 8, cols: 8,
+    grid: [
+      [0,0,0,0,1,1,1,1],
+      [1,1,1,0,1,1,1,1],
+      [1,1,1,0,0,0,0,1],
+      [1,1,1,1,1,1,0,1],
+      [1,1,1,1,1,1,0,1],
+      [1,1,0,0,0,0,0,1],
+      [1,1,0,1,0,1,1,1],
+      [1,1,0,1,0,1,1,1]
+    ],
+    start:{r:0,c:0}, goal:{r:7,c:2}
+  },
+  {
+    name: 'Nível 4 — O labirinto final',
+    rows: 8, cols: 8,
+    grid: [
+      [0,1,1,1,1,1,1,1],
+      [0,1,1,1,0,0,0,0],
+      [0,0,0,0,0,1,1,0],
+      [1,1,1,1,0,1,1,0],
+      [1,1,1,1,1,1,1,0],
+      [1,1,1,1,1,0,0,0],
+      [1,1,1,1,1,1,1,1],
+      [1,1,1,1,1,1,1,1]
+    ],
+    start:{r:0,c:0}, goal:{r:5,c:5}
+  }
+];
+
+const DIRS = {
+  up:   {dr:-1,dc:0,sym:'↑'},
+  down: {dr:1, dc:0,sym:'↓'},
+  left: {dr:0, dc:-1,sym:'←'},
+  right:{dr:0, dc:1, sym:'→'}
+};
+
+let maze, robot, trail, cmds, execIdx, animTimer, stepMode, done;
+const completed = new Set();
+
+function loadLevel(idx, btn) {
+  clearAnim();
+  maze = MAZES[idx];
+  document.getElementById('maze-name').textContent = maze.name;
+  document.querySelectorAll('.lvl-btn').forEach((b,i)=>{
+    b.classList.toggle('active', i===idx);
+  });
+  const cell = maze.cols <= 7 ? 44 : maze.cols <= 8 ? 40 : 36;
+  document.documentElement.style.setProperty('--cell', cell+'px');
+  resetAll();
+}
+
+function resetAll() {
+  clearAnim();
+  robot = {...maze.start};
+  trail = new Set();
+  cmds = [];
+  execIdx = -1;
+  stepMode = false;
+  done = false;
+  renderGrid();
+  renderCmds();
+  setStatus('');
+  updateStats();
+  setRunning(false);
+}
+
+function resetRobot() {
+  clearAnim();
+  robot = {...maze.start};
+  trail = new Set();
+  execIdx = -1;
+  done = false;
+  renderGrid();
+  renderCmds();
+  setStatus('');
+  updateStats();
+  setRunning(false);
+}
+
+function clearCmds() {
+  clearAnim();
+  cmds = [];
+  robot = {...maze.start};
+  trail = new Set();
+  execIdx = -1;
+  done = false;
+  renderGrid();
+  renderCmds();
+  setStatus('');
+  updateStats();
+  setRunning(false);
+}
+
+/* ── Grid rendering ── */
+function renderGrid() {
+  const mg = document.getElementById('mg');
+  mg.style.gridTemplateColumns = `repeat(${maze.cols}, var(--cell))`;
+  mg.innerHTML = '';
+  for (let r = 0; r < maze.rows; r++) {
+    for (let c = 0; c < maze.cols; c++) {
+      const div = document.createElement('div');
+      const isWall  = maze.grid[r][c] === 1;
+      const isRobot = r===robot.r && c===robot.c;
+      const isGoal  = r===maze.goal.r && c===maze.goal.c;
+      const isTrail = trail.has(r+','+c);
+      div.className = 'cell ' + (
+        isWall ? 'wall' :
+        isRobot ? 'robot-cell' :
+        isGoal  ? 'goal-cell' :
+        isTrail ? 'trail' : 'path'
+      );
+      div.textContent = isRobot ? '🤖' : isGoal ? '🚩' : '';
+      mg.appendChild(div);
+    }
+  }
+}
+
+/* ── Command rendering ── */
+function renderCmds() {
+  const wrap = document.getElementById('cmd-wrap');
+  const empty = document.getElementById('cmd-empty');
+  wrap.innerHTML = '';
+  if (cmds.length === 0) {
+    wrap.appendChild(Object.assign(document.createElement('span'), {className:'cmd-empty',textContent:'Adicione comandos com as setas ↑'}));
+    return;
+  }
+  cmds.forEach((d, i) => {
+    const pill = document.createElement('div');
+    const cls = i === execIdx ? 'pill active' : i < execIdx ? 'pill done' : 'pill';
+    pill.className = cls;
+    pill.innerHTML = DIRS[d].sym + '<span class="pill-x">×</span>';
+    pill.onclick = () => {
+      if (execIdx >= 0) return;
+      cmds.splice(i, 1);
+      renderCmds();
+      updateStats();
+    };
+    wrap.appendChild(pill);
+  });
+  if (execIdx >= 0) {
+    const pills = wrap.querySelectorAll('.pill');
+    if (pills[execIdx]) pills[execIdx].scrollIntoView({block:'nearest',inline:'nearest'});
+  }
+  document.getElementById('cmd-wrap').classList.toggle('running', execIdx >= 0);
+}
+
+function addCmd(dir) {
+  if (execIdx >= 0 || done) return;
+  cmds.push(dir);
+  renderCmds();
+  updateStats();
+  setStatus('');
+  flashDpad(dir);
+}
+
+function flashDpad(dir) {
+  const map = {up:'up',down:'dn',left:'lt',right:'rt'};
+  const btn = document.querySelector('.dp.'+map[dir]);
+  if (!btn) return;
+  btn.style.background='#ddd6fe';
+  setTimeout(()=>btn.style.background='',180);
+}
+
+/* ── Execution ── */
+function runAll() {
+  if (cmds.length === 0) { setStatus('Adicione pelo menos um comando!','warn'); return; }
+  if (done) return;
+  resetRobotPos();
+  stepMode = false;
+  execIdx = 0;
+  setRunning(true);
+  renderCmds();
+  runStep();
+}
+
+function resetRobotPos() {
+  robot = {...maze.start};
+  trail = new Set();
+}
+
+function stepOnce() {
+  if (cmds.length === 0) { setStatus('Adicione pelo menos um comando!','warn'); return; }
+  if (done) return;
+  if (!stepMode) {
+    resetRobotPos();
+    stepMode = true;
+    execIdx = 0;
+    setRunning(true);
+  }
+  if (execIdx >= cmds.length) {
+    finishRun(false);
+    return;
+  }
+  const result = moveRobot(cmds[execIdx]);
+  renderGrid();
+  renderCmds();
+  updateStats(execIdx+1);
+  if (result === 'win') { winLevel(); return; }
+  if (result === 'wall' || result === 'oob') { crashRobot(result); return; }
+  execIdx++;
+  if (execIdx >= cmds.length) finishRun(false);
+}
+
+function runStep() {
+  if (execIdx >= cmds.length) { finishRun(false); return; }
+  const result = moveRobot(cmds[execIdx]);
+  renderGrid();
+  renderCmds();
+  updateStats(execIdx+1);
+  if (result === 'win') { winLevel(); return; }
+  if (result === 'wall' || result === 'oob') { crashRobot(result); return; }
+  execIdx++;
+  animTimer = setTimeout(runStep, 380);
+}
+
+function moveRobot(dir) {
+  trail.add(robot.r+','+robot.c);
+  const {dr,dc} = DIRS[dir];
+  const nr = robot.r + dr, nc = robot.c + dc;
+  if (nr < 0 || nr >= maze.rows || nc < 0 || nc >= maze.cols) return 'oob';
+  if (maze.grid[nr][nc] === 1) return 'wall';
+  robot.r = nr; robot.c = nc;
+  if (robot.r === maze.goal.r && robot.c === maze.goal.c) return 'win';
+  return 'ok';
+}
+
+function winLevel() {
+  done = true;
+  clearAnim();
+  setRunning(false);
+  renderGrid();
+  renderCmds();
+  const lvlIdx = MAZES.indexOf(maze);
+  completed.add(lvlIdx);
+  document.querySelectorAll('.lvl-btn')[lvlIdx].classList.add('done');
+  const moves = cmds.length;
+  setStatus(`🎉 Parabéns! O robô chegou! Você usou ${moves} comando${moves!==1?'s':''}. Tente usar menos!`,'success');
+  confetti();
+}
+
+function crashRobot(type) {
+  clearAnim();
+  setRunning(false);
+  done = true;
+  const msg = type==='oob'
+    ? '💥 O robô saiu do labirinto! Verifique seus comandos e tente novamente.'
+    : '💥 Bateu na parede! Revise a sequência de comandos.';
+  setStatus(msg,'error');
+  const cells = document.querySelectorAll('.cell.robot-cell');
+  cells.forEach(c=>{ c.classList.add('crash'); setTimeout(()=>c.classList.remove('crash'),400); });
+}
+
+function finishRun(won) {
+  if (!won) {
+    clearAnim();
+    setRunning(false);
+    done = true;
+    setStatus('🤔 O robô parou antes de chegar à bandeira. Adicione mais comandos!','info');
+    renderCmds();
+  }
+}
+
+function clearAnim() {
+  if (animTimer) { clearTimeout(animTimer); animTimer = null; }
+}
+
+function setRunning(v) {
+  ['btn-run','btn-step','btn-clr'].forEach(id=>{
+    document.getElementById(id).disabled = v;
+  });
+  document.querySelectorAll('.dp').forEach(b=>b.disabled=v);
+}
+
+function setStatus(msg, type='') {
+  const el = document.getElementById('status');
+  el.className = 'status' + (type ? ' '+type : '');
+  el.textContent = msg;
+}
+
+function updateStats(step) {
+  document.getElementById('s-total').textContent = cmds.length;
+  document.getElementById('s-step').textContent = step != null ? step+'/'+cmds.length : '—';
+}
+
+/* ── Confetti burst ── */
+function confetti() {
+  const colors = ['#FF6B6B','#FFD93D','#4ECDC4','#A78BFA','#60A5FA','#6EE7B7'];
+  for (let i = 0; i < 32; i++) {
+    const el = document.createElement('div');
+    const x = Math.random()*window.innerWidth, y = Math.random()*window.innerHeight*0.4+window.scrollY;
+    Object.assign(el.style, {
+      position:'fixed',left:x+'px',top:y+'px',width:'8px',height:'8px',
+      borderRadius:Math.random()>0.5?'50%':'2px',
+      background:colors[Math.floor(Math.random()*colors.length)],
+      pointerEvents:'none',zIndex:9999,
+      transition:`transform ${0.6+Math.random()*0.8}s ease, opacity ${0.8+Math.random()*0.4}s ease`
+    });
+    document.body.appendChild(el);
+    requestAnimationFrame(()=>{
+      el.style.transform = `translate(${(Math.random()-0.5)*120}px, ${60+Math.random()*100}px) rotate(${Math.random()*360}deg)`;
+      el.style.opacity = '0';
+    });
+    setTimeout(()=>el.remove(), 1400);
+  }
+}
+
+/* ── Keyboard support ── */
+document.addEventListener('keydown', e => {
+  const map = {ArrowUp:'up',ArrowDown:'down',ArrowLeft:'left',ArrowRight:'right'};
+  if (map[e.key]) { e.preventDefault(); addCmd(map[e.key]); return; }
+  if (e.key==='Enter') { runAll(); return; }
+  if (e.key==='Escape') { clearCmds(); }
+});
+
+/* ── Boot ── */
+loadLevel(0, document.querySelector('.lvl-btn'));
+</script>
+</body>
+</html>
