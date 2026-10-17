@@ -95,7 +95,7 @@
 
   .cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 16px;
     margin-bottom: 1.8rem;
   }
@@ -148,6 +148,16 @@
   .icon-maze {
     background: #fef3c7;
     color: #92400e;
+  }
+
+  .icon-drawer {
+    background: #ccfbf1;
+    color: #115e59;
+  }
+
+  .icon-object {
+    background: #dbeafe;
+    color: #1e40af;
   }
 
   .card-title {
@@ -215,6 +225,15 @@
     color: #7c2d12;
   }
 
+  .card.drawer .cta {
+    background: linear-gradient(135deg, var(--teal), var(--green));
+    color: #134e4a;
+  }
+
+  .card.object .cta {
+    background: linear-gradient(135deg, var(--blue), var(--teal));
+  }
+
   .note {
     background: rgba(255, 255, 255, 0.78);
     border: 2px solid var(--border);
@@ -246,7 +265,7 @@
   <header>
     <div class="header-badge">📚 Exemplos de Algoritmos</div>
     <h1>Escolha uma página</h1>
-    <p>Este índice reúne as duas atividades disponíveis no projeto.</p>
+    <p>Este índice reúne as atividades disponíveis no projeto.</p>
   </header>
 
   <div class="cards">
@@ -275,6 +294,36 @@
         <div class="meta">
           <span class="tag">Pensamento computacional</span>
           <span class="tag">Comandos</span>
+        </div>
+        <div class="cta">Abrir página</div>
+      </div>
+    </a>
+
+    <a class="card drawer" href="gavetas.html">
+      <div class="card-top">
+        <div class="card-icon icon-drawer">🗄️</div>
+        <div class="card-title">Onde os apps guardam as coisas</div>
+      </div>
+      <div class="card-body">
+        <p>Compare a lousa com o caderno para entender a diferença entre memória temporária e armazenamento permanente, e veja como os apps guardam informações em gavetas.</p>
+        <div class="meta">
+          <span class="tag">Variáveis</span>
+          <span class="tag">Armazenamento</span>
+        </div>
+        <div class="cta">Abrir página</div>
+      </div>
+    </a>
+
+    <a class="card object" href="objetos-gavetas.html">
+      <div class="card-top">
+        <div class="card-icon icon-object">📦</div>
+        <div class="card-title">Objetos dentro do armário</div>
+      </div>
+      <div class="card-body">
+        <p>Continuação da trilha das gavetas. Descubra os campos de um objeto e guarde várias informações juntas numa mesma gaveta.</p>
+        <div class="meta">
+          <span class="tag">Objetos</span>
+          <span class="tag">Campos</span>
         </div>
         <div class="cta">Abrir página</div>
       </div>
