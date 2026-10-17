@@ -1,0 +1,934 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Objetos dentro do armário</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --bg:#E7EFFA; --surface:#FFFFFF; --surface-2:#DDE8F6; --ink:#1B2B4B; --ink-soft:#4B5D7E; --line:#C4D4E9;
+  --brand:#2D59A8; --on-brand:#FFFFFF; --rotulo:#A8285E; --rotulo-bg:#F9E1EB; --valor:#7A5600; --valor-bg:#FFEDB8;
+  --sun:#F5B921; --sun-ink:#33240A;
+  --ok:#21704A; --ok-bg:#DCF2E5; --err:#A2271E; --err-bg:#FBE2DF;
+  --cab:#3C66AE; --cab-dark:#284A86; --cab-ink:#FFFFFF; --cab-ink-soft:#D3E1F7; --drawer:#6C93D2; --drawer-hi:#83A6DE;
+  --plate:#FFF8E6; --plate-ink:#3A1830; --valtag:#FFE29A; --valtag-ink:#3B2A00;
+  --board:#2E4A3B; --board-frame:#8A5A33; --chalk:#F1F0E8; --chalk-soft:#B9C8BD;
+  --paper:#FFFDF6; --paper-line:#CADAF0; --paper-margin:#E7A3A3; --paper-ink:#203A6E;
+  --postit:#FFE27A; --postit-back:#F7C948; --postit-ink:#3B2A00;
+  --shadow:0 1px 0 rgba(27,43,75,.05), 0 10px 28px -14px rgba(27,43,75,.35);
+  --font-head:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --font-body:"Atkinson Hyperlegible",Verdana,system-ui,sans-serif;
+  --font-hand:"Caveat","Segoe Print","Comic Sans MS",cursive;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1729; --surface:#16233B; --surface-2:#1F3150; --ink:#E4ECF8; --ink-soft:#A8B8D2; --line:#2D4063;
+    --brand:#8FB5F2; --on-brand:#0E1729; --rotulo:#F49BC0; --rotulo-bg:#3F1D2E; --valor:#FFD873; --valor-bg:#3A2E0E;
+    --ok:#7DD4A2; --ok-bg:#153626; --err:#F6A098; --err-bg:#43201D;
+    --cab:#33589A; --cab-dark:#1F3C70; --drawer:#5579B8; --drawer-hi:#6B8ECB;
+    --shadow:0 1px 0 rgba(0,0,0,.2), 0 10px 28px -14px rgba(0,0,0,.6);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1729; --surface:#16233B; --surface-2:#1F3150; --ink:#E4ECF8; --ink-soft:#A8B8D2; --line:#2D4063;
+  --brand:#8FB5F2; --on-brand:#0E1729; --rotulo:#F49BC0; --rotulo-bg:#3F1D2E; --valor:#FFD873; --valor-bg:#3A2E0E;
+  --ok:#7DD4A2; --ok-bg:#153626; --err:#F6A098; --err-bg:#43201D;
+  --cab:#33589A; --cab-dark:#1F3C70; --drawer:#5579B8; --drawer-hi:#6B8ECB;
+  --shadow:0 1px 0 rgba(0,0,0,.2), 0 10px 28px -14px rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 var(--font-body);-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--font-head);line-height:1.12;margin:0}
+p{margin:0 0 .9em}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* topo */
+.top{background:var(--surface);border-bottom:1px solid var(--line)}
+.top-in{max-width:1380px;margin:0 auto;padding:16px 32px;display:flex;align-items:center;gap:28px}
+.brand{display:flex;flex-direction:column;gap:2px;margin-right:auto}
+.brand b{font:800 22px/1.1 var(--font-head);color:var(--brand)}
+.brand span{font-size:14px;color:var(--ink-soft)}
+.prog{display:flex;flex-direction:column;gap:6px;min-width:220px}
+.prog span{font-size:14px;color:var(--ink-soft)}
+.bar{height:10px;background:var(--surface-2);border-radius:5px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--sun);border-radius:5px;transition:width .6s ease}
+
+/* estrutura */
+.wrap{max-width:1380px;margin:0 auto;padding:28px 32px 56px;display:grid;grid-template-columns:270px minmax(0,1fr);gap:32px;align-items:start}
+.trail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px)}
+.trail h2{font-size:15px;font-weight:600;color:var(--ink-soft);margin:4px 0 14px 4px}
+.trail ol{list-style:none;margin:0;padding:0}
+.trail li{position:relative;padding-bottom:10px}
+.trail li:not(:last-child)::before{content:"";position:absolute;left:23px;top:44px;bottom:-2px;width:3px;background:var(--line);border-radius:2px}
+.trail li.st-done:not(:last-child)::before{background:var(--ok)}
+.trail button{all:unset;box-sizing:border-box;display:flex;gap:12px;align-items:center;width:100%;padding:6px;border-radius:14px;cursor:pointer}
+.trail button:hover:not(:disabled){background:var(--surface)}
+.trail button:focus-visible{outline:3px solid var(--brand)}
+.trail button:disabled{cursor:not-allowed}
+.trail li.cur button{background:var(--surface);box-shadow:var(--shadow)}
+.dot{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;font:800 16px var(--font-head);background:var(--surface-2);color:var(--ink-soft);border:2px solid var(--line)}
+.st-done .dot{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.st-open .dot{background:var(--sun);border-color:var(--sun);color:var(--sun-ink)}
+.st-locked .dot svg{width:15px;height:15px}
+.tt{display:flex;flex-direction:column;line-height:1.25}
+.tn{font-size:13px;color:var(--ink-soft)}
+.tl{font-weight:700}
+.st-locked .tl,.st-locked .tn{color:var(--ink-soft);opacity:.75}
+.trail li.pulse .dot{animation:pulse 1.2s ease 2}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18);box-shadow:0 0 0 8px rgba(245,185,33,.3)}}
+
+.stage{background:var(--surface);border-radius:22px;box-shadow:var(--shadow);padding:34px 40px 26px;min-height:620px;display:flex;flex-direction:column}
+.mhead{margin-bottom:26px}
+.mnum{font-size:15px;color:var(--ink-soft);margin:0 0 6px}
+.mhead h1{font-size:clamp(30px,3.1vw,42px);font-weight:800;letter-spacing:-.01em}
+.stepbar{list-style:none;display:flex;gap:8px;margin:20px 0 0;padding:0;flex-wrap:wrap}
+.stepbar li{display:flex;align-items:center;gap:8px;padding:6px 14px 6px 6px;border-radius:999px;background:var(--surface-2);color:var(--ink-soft);font-size:15px}
+.stepbar li span{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:800 14px var(--font-head);background:var(--surface);color:var(--ink-soft)}
+.stepbar li.now{background:var(--sun);color:var(--sun-ink);font-weight:700}
+.stepbar li.now span{background:var(--surface);color:var(--ink)}
+.stepbar li.past span{background:var(--ok);color:var(--surface)}
+.content{flex:1}
+.nav{display:flex;align-items:center;gap:16px;border-top:1px solid var(--line);margin-top:30px;padding-top:20px}
+.nav .hint{margin:0 auto 0 0;font-size:15px;color:var(--ink-soft)}
+
+/* textos */
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;align-items:start}
+.prose{max-width:62ch}
+.lead{font-size:20px;line-height:1.5}
+.do{background:var(--surface-2);border-left:5px solid var(--sun);padding:12px 16px;border-radius:0 10px 10px 0;font-weight:700}
+.tag-r,.tag-v{display:inline-block;font-weight:700;padding:0 8px;border-radius:6px}
+.tag-r{background:var(--rotulo-bg);color:var(--rotulo)}
+.tag-v{background:var(--valor-bg);color:var(--valor)}
+.small{font-size:15px;color:var(--ink-soft)}
+.howto{background:var(--surface-2);border-radius:16px;padding:22px 24px}
+.howto h2{font-size:21px;margin-bottom:12px}
+.howto p:last-child{margin:0}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:6px}
+.pair > div{border-radius:14px;padding:18px 20px;background:var(--surface-2)}
+.pair h3{font-size:19px;margin-bottom:8px}
+.pair p{font-size:15px;margin:0 0 .6em}
+.pair p:last-child{margin:0}
+.examples{list-style:none;padding:0;margin:18px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.examples li{background:var(--surface-2);border-radius:14px;padding:14px 16px;font-size:15px}
+.examples b{display:block;font-size:16px;margin-bottom:4px}
+.def{font:600 22px/1.45 var(--font-head);border-left:6px solid var(--brand);padding:6px 0 6px 18px;margin:0 0 20px}
+.def mark{background:var(--valor-bg);color:inherit;padding:0 4px;border-radius:4px}
+
+/* botões */
+.btn{font:700 16px/1 var(--font-body);padding:13px 22px;border-radius:12px;border:2px solid transparent;cursor:pointer;transition:transform .1s, background .2s}
+.btn:active:not(:disabled){transform:translateY(1px)}
+.btn:disabled{opacity:.42;cursor:not-allowed}
+.btn-primary{background:var(--brand);color:var(--on-brand)}
+.btn-ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn-ghost:hover:not(:disabled){border-color:var(--ink-soft)}
+.btn-run{background:var(--sun);color:var(--sun-ink)}
+.btn-sm{padding:9px 14px;font-size:15px}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+
+/* campos */
+.field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:150px}
+.field label{font-size:14px;font-weight:700;color:var(--ink-soft)}
+.field input{font:inherit;color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:10px;padding:10px 12px}
+.field input:focus{outline:none;border-color:var(--brand)}
+.panel{background:var(--surface-2);border-radius:16px;padding:18px 20px}
+.panel h3{font-size:18px;margin-bottom:12px}
+.panel + .panel{margin-top:14px}
+
+/* tarefas e feedback */
+.tasks{list-style:none;padding:0;margin:0 0 20px;display:grid;gap:8px}
+.tasks li{display:flex;gap:10px;align-items:flex-start;padding:10px 14px;border-radius:10px;background:var(--surface-2);font-size:15px}
+.tasks .box{flex:none;width:20px;height:20px;border-radius:6px;border:2px solid var(--ink-soft);margin-top:1px;display:grid;place-items:center;font-size:13px;font-weight:700}
+.tasks li.ok{background:var(--ok-bg)}
+.tasks li.ok .box{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.tasks li.ok .box::after{content:"✓"}
+.fb{margin-top:14px;padding:12px 16px;border-radius:10px;display:none}
+.fb.ok,.fb.err,.fb.info{display:block}
+.fb.ok{background:var(--ok-bg);color:var(--ok)}
+.fb.err{background:var(--err-bg);color:var(--err)}
+.fb.info{background:var(--surface-2);color:var(--ink)}
+.answer{display:flex;align-items:center;gap:12px;margin-top:14px;font-size:16px}
+.answer output{background:var(--valtag);color:var(--valtag-ink);font-weight:700;padding:7px 16px;border-radius:8px;min-width:80px;text-align:center}
+
+/* quiz */
+.quiz{border:0;margin:0;padding:0;max-width:760px}
+.quiz legend{font:700 21px/1.35 var(--font-head);margin-bottom:16px;padding:0}
+.opt{display:block;width:100%;text-align:left;font:inherit;color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:13px 16px;margin-bottom:10px;cursor:pointer}
+.opt:hover{border-color:var(--ink-soft)}
+.opt.sel-ok{border-color:var(--ok);background:var(--ok-bg)}
+.opt.sel-err{border-color:var(--err);background:var(--err-bg)}
+.final-quiz .qitem{padding:18px 0;border-top:1px solid var(--line)}
+.final-quiz .qitem:first-child{border-top:0;padding-top:0}
+.final-quiz h3{font-size:19px;margin-bottom:12px;font-weight:600}
+.final-quiz label{display:flex;gap:10px;align-items:center;padding:9px 12px;border-radius:10px;cursor:pointer}
+.final-quiz label:hover{background:var(--surface-2)}
+.final-quiz input{width:18px;height:18px;accent-color:var(--brand)}
+.final-quiz .qitem.right h3::after{content:"  ✓ certo";color:var(--ok);font-size:15px}
+.final-quiz .qitem.wrong h3::after{content:"  ✗ revise";color:var(--err);font-size:15px}
+.qfb{font-size:15px;margin:8px 0 0 12px;color:var(--ink-soft)}
+
+/* lista de classificação */
+.sort{list-style:none;padding:0;margin:0;display:grid;gap:10px;max-width:900px}
+.sort li{display:grid;grid-template-columns:1fr auto;gap:8px 16px;align-items:center;background:var(--surface-2);border-radius:12px;padding:12px 16px;border:2px solid transparent}
+.sort li.ok{border-color:var(--ok);background:var(--ok-bg)}
+.sort li.err{border-color:var(--err)}
+.sort .choices{display:flex;gap:8px}
+.sort .choices button{font:700 14px var(--font-body);padding:9px 12px;border-radius:9px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.sort .choices button:hover:not(:disabled){border-color:var(--ink-soft)}
+.sort .choices button.picked{border-color:var(--ok);background:var(--ok);color:var(--surface)}
+.sort .choices button:disabled{cursor:default}
+.sort .why{grid-column:1/-1;font-size:15px;margin:0}
+.sort li.ok .why{color:var(--ok)}
+.sort li.err .why{color:var(--err)}
+
+/* lousa e caderno */
+.lc{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.lc figure{margin:0;display:flex;flex-direction:column;gap:10px}
+.lc figcaption{font-weight:700}
+.lc figcaption span{font-weight:400;color:var(--ink-soft);font-size:15px}
+.board{position:relative;height:230px;background:var(--board);border:12px solid var(--board-frame);border-radius:10px;color:var(--chalk);padding:16px 20px;overflow:hidden}
+.paper{position:relative;height:230px;background:repeating-linear-gradient(to bottom,var(--paper) 0 33px,var(--paper-line) 33px 34px);background-color:var(--paper);border-radius:6px 12px 12px 6px;color:var(--paper-ink);padding:2px 20px 16px 52px;box-shadow:var(--shadow);overflow:hidden;border:1px solid var(--line)}
+.paper::before{content:"";position:absolute;left:38px;top:0;bottom:0;width:2px;background:var(--paper-margin)}
+.hand{font:500 30px/34px var(--font-hand);margin:0;overflow-wrap:anywhere}
+.board .hand{color:var(--chalk)}
+.paper .hand{color:var(--paper-ink)}
+.hand-empty{font:400 15px var(--font-body);opacity:.7}
+.board .eraser{position:absolute;top:0;left:-30%;width:26%;height:100%;background:linear-gradient(90deg,transparent,rgba(241,240,232,.18) 40%,transparent);pointer-events:none;opacity:0}
+.board.erasing .eraser{animation:sweep 1s ease forwards}
+.board.erasing .hand{animation:wipe 1s ease forwards}
+@keyframes sweep{0%{left:-30%;opacity:1}100%{left:105%;opacity:1}}
+@keyframes wipe{0%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 0 0 100%)}}
+.lc-status{font-size:15px;min-height:2.6em;margin:0}
+.lc-status.ok{color:var(--ok)}
+.lc-status.err{color:var(--err)}
+
+/* pilha e agenda */
+.hunt{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+.hunt h3{font-size:19px;margin-bottom:6px}
+.clicks{font-size:15px;color:var(--ink-soft);margin:0 0 12px}
+.clicks b{font:800 20px var(--font-head);color:var(--ink)}
+.pile{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:10px}
+.note{aspect-ratio:1/1;border:0;border-radius:3px;background:var(--postit-back);color:var(--postit-ink);font:700 24px var(--font-hand);cursor:pointer;box-shadow:0 3px 6px rgba(0,0,0,.18);display:grid;place-items:center;padding:6px;text-align:center;transition:transform .2s}
+.note:hover:not(:disabled){filter:brightness(1.05)}
+.note.flip{background:var(--postit);cursor:default}
+.note.flip span{display:block;line-height:1.1}
+.note.flip small{display:block;font:400 12px var(--font-body);margin-top:4px;white-space:nowrap}
+.note.target{box-shadow:0 0 0 4px var(--ok)}
+.agenda{background:var(--paper);color:var(--paper-ink);border-radius:8px 14px 14px 8px;border:1px solid var(--line);box-shadow:var(--shadow);overflow:hidden}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;padding:10px;background:#E9E2CF;border-bottom:1px solid #D8CFB7}
+.tabs button{font:700 13px var(--font-body);width:28px;height:28px;border:0;border-radius:6px;background:#FFFDF6;color:#203A6E;cursor:pointer}
+.tabs button:hover:not(:disabled){background:#FFE27A}
+.tabs button.on{background:#203A6E;color:#FFFDF6}
+.tabs button:disabled{opacity:.4;cursor:not-allowed}
+.apage{min-height:200px;padding:14px 20px;background:repeating-linear-gradient(to bottom,var(--paper) 0 33px,var(--paper-line) 33px 34px)}
+.apage .letter{font:700 34px/34px var(--font-hand);margin:0}
+.apage ul{list-style:none;margin:0;padding:0}
+.apage li{font:500 26px/34px var(--font-hand);display:flex;justify-content:space-between}
+.apage li.target{background:rgba(245,185,33,.35)}
+.apage .none{font:400 15px/34px var(--font-body);opacity:.75}
+.compare{margin-top:22px}
+
+/* gaveteiro */
+.cab{background:var(--cab);border-radius:16px;padding:12px 14px 18px;box-shadow:inset 0 -7px 0 var(--cab-dark),var(--shadow);max-width:500px;color:var(--cab-ink)}
+.cab-top{display:flex;justify-content:space-between;align-items:baseline;font:800 17px var(--font-head);padding:2px 4px 6px}
+.cab-top small{font:400 14px var(--font-body);color:var(--cab-ink-soft)}
+.cab-legend{display:grid;grid-template-columns:170px 1fr;gap:12px;font-size:13px;color:var(--cab-ink-soft);padding:0 4px 8px}
+.drawers{display:flex;flex-direction:column;gap:9px;max-height:390px;overflow:auto;padding:4px}
+.cab-empty{margin:8px 4px;color:var(--cab-ink-soft);font-size:15px}
+.drawer{display:grid;grid-template-columns:170px 1fr;align-items:center;gap:12px}
+.front{background:var(--drawer);border:0;border-radius:9px;padding:10px 10px 8px;display:flex;flex-direction:column;align-items:center;gap:7px;box-shadow:inset 0 -4px 0 rgba(0,0,0,.2);font:inherit;color:inherit;transition:transform .3s ease,background .2s}
+button.front{cursor:pointer}
+button.front:hover{background:var(--drawer-hi)}
+.drawer.open .front{transform:translateX(8px)}
+.plate{background:var(--plate);color:var(--plate-ink);font-weight:700;padding:3px 10px;border-radius:4px;min-width:110px;max-width:100%;text-align:center;overflow-wrap:anywhere;border:1px solid rgba(0,0,0,.18);font-size:15px}
+.handle{width:38px;height:6px;border-radius:3px;background:rgba(0,0,0,.32)}
+.inside{opacity:0;transform:translateX(-26px);transition:opacity .35s ease,transform .35s ease;display:flex;align-items:center;gap:8px;min-width:0}
+.inside::before{content:"";flex:none;width:22px;border-top:2px dashed var(--cab-ink-soft)}
+.drawer.open .inside{opacity:1;transform:none}
+.valtag{background:var(--valtag);color:var(--valtag-ink);font-weight:700;padding:6px 12px;border-radius:6px;overflow-wrap:anywhere;box-shadow:0 2px 0 rgba(0,0,0,.18);font-size:15px}
+.drawer.fresh{animation:slidein .55s ease}
+.drawer.hi .valtag{animation:flash 1.3s ease}
+.drawer.dim{opacity:.55}
+@keyframes slidein{from{opacity:0;transform:translateY(-10px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes flash{0%,100%{box-shadow:0 2px 0 rgba(0,0,0,.18)}35%{box-shadow:0 0 0 6px rgba(245,185,33,.65)}}
+
+/* tabela */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;font-size:16px}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+th{background:var(--surface-2);font-weight:700}
+td:first-child,th:first-child{border-right:1px solid var(--line)}
+.colpick th{padding:6px}
+.colpick th button{all:unset;box-sizing:border-box;display:block;width:100%;padding:8px 10px;border-radius:8px;border:2px dashed var(--ink-soft);cursor:pointer;font-weight:700;text-align:left}
+.colpick th button:hover{background:var(--surface)}
+.colpick th button:focus-visible{outline:3px solid var(--brand)}
+.colpick th button.picked-ok{border-style:solid;border-color:var(--ok);background:var(--ok-bg);color:var(--ok)}
+.colpick th button.picked-err{border-style:solid;border-color:var(--err);background:var(--err-bg);color:var(--err)}
+.colpick td.hl{background:var(--rotulo-bg)}
+.anatomy{display:flex;gap:18px;flex-wrap:wrap;font-size:15px;color:var(--ink-soft);margin-top:10px}
+.anatomy span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.anatomy .a-row::before{background:var(--valor-bg);border:2px solid var(--valor)}
+.anatomy .a-col::before{background:var(--rotulo-bg);border:2px solid var(--rotulo)}
+tr.hl-row td{background:var(--valor-bg)}
+td.hl-col,th.hl-col{box-shadow:inset 3px 0 0 var(--rotulo),inset -3px 0 0 var(--rotulo)}
+
+/* conclusão */
+.donebox{flex:1;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;max-width:640px;padding:40px 0}
+.seal{width:84px;height:84px;border-radius:50%;background:var(--ok);display:grid;place-items:center;margin-bottom:22px;animation:pop .6s ease}
+.seal svg{width:44px;height:44px}
+.bigtitle{font-size:clamp(32px,3.4vw,46px);font-weight:800;margin-bottom:14px}
+@keyframes pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+.final-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:40px;margin-top:10px}
+.learned{padding-left:1.2em;margin:0}
+.learned li{margin-bottom:10px}
+.final-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+
+@media (max-width:1100px){
+  .cols,.final-grid,.hunt{grid-template-columns:1fr}
+}
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr;padding:20px 16px 40px}
+  .trail{position:static}
+  .trail ol{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px}
+  .trail li{flex:none;padding:0}
+  .trail li::before{display:none}
+  .trail .tt{display:none}
+  .stage{padding:24px 20px}
+  .top-in{padding:14px 16px;flex-wrap:wrap}
+  .lc,.pair,.examples{grid-template-columns:1fr}
+  .sort li{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+
+:root{--cover:#2E5E8C;--cover-ink:#FFFFFF;--cover-2:#F3E7CF;--cover-2-ink:#3B2A12;--sticker:#F5B921;--sticker-ink:#33240A}
+/* livro */
+.olhar{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(240px,1fr);gap:32px;align-items:start}
+.book{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:600px}
+.cover,.back{position:relative;aspect-ratio:3/4;border-radius:4px 14px 14px 4px;box-shadow:var(--shadow);padding:22px 20px;display:flex;flex-direction:column}
+.cover{background:var(--cover);color:var(--cover-ink)}
+.back{background:var(--cover-2);color:var(--cover-2-ink);border-radius:14px 4px 4px 14px}
+.cover::before{content:"";position:absolute;left:10px;top:0;bottom:0;width:3px;background:rgba(255,255,255,.18)}
+.hot{all:unset;box-sizing:border-box;cursor:pointer;border:2px dashed transparent;border-radius:8px;padding:4px 6px;transition:border-color .2s,background .2s}
+.hot:hover,.hot:focus-visible{border-color:currentColor}
+.hot.found{border:2px solid var(--sun);background:rgba(245,185,33,.22)}
+.b-sticker.found{background:var(--sticker);box-shadow:0 0 0 3px var(--cover-ink)}
+.hot.extra.found{border-color:rgba(255,255,255,.6);background:rgba(255,255,255,.12)}
+.back .b-sticker.found{background:var(--sticker);box-shadow:0 0 0 3px var(--cover-ink)}
+.hot.extra.found{border-color:rgba(59,42,18,.5);background:rgba(59,42,18,.08)}
+.b-title{font:800 30px/1.05 var(--font-head);margin-top:6px}
+.b-author{font-size:16px;margin-top:6px;opacity:.95}
+.b-art{margin:auto auto 34px;display:block}
+.b-art svg{width:110px;height:110px;display:block}
+.b-sticker{position:absolute;right:14px;bottom:18px;background:var(--sticker);color:var(--sticker-ink);font-weight:700;border-radius:999px;padding:6px 12px;transform:rotate(-6deg)}
+.b-syn{font:400 14px/1.45 var(--font-body)}
+.b-pages{margin-top:auto;font-weight:700}
+.notepad{background:var(--paper);color:var(--paper-ink);border-radius:8px;border:1px solid var(--line);box-shadow:var(--shadow);padding:14px 18px 18px 50px;position:relative;min-height:240px;background-image:repeating-linear-gradient(to bottom,var(--paper) 0 33px,var(--paper-line) 33px 34px)}
+.notepad::before{content:"";position:absolute;left:36px;top:0;bottom:0;width:2px;background:var(--paper-margin)}
+.notepad h3{font:700 28px/34px var(--font-hand);margin:0}
+.notepad ul{list-style:none;margin:0;padding:0}
+.notepad li{font:500 25px/34px var(--font-hand)}
+.notepad li.extra{opacity:.6}
+.notepad .none{font:400 15px/34px var(--font-body);opacity:.75}
+
+/* ficha */
+.ficha select{min-width:170px;font:inherit;color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:8px;padding:6px 8px;max-width:100%}
+.ficha td.bad select,.ficha td.bad .radio{border-color:var(--err);background:var(--err-bg)}
+.ficha td.good select{border-color:var(--ok)}
+.ficha .radio{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border:2px solid transparent;border-radius:8px;cursor:pointer}
+.ficha .radio input{width:18px;height:18px;accent-color:var(--brand)}
+.tips{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:6px;font-size:15px}
+.tips li::before{content:"•";color:var(--sun);font-weight:800;margin-right:8px}
+
+/* dicionário */
+.dict{display:inline-grid;grid-template-columns:auto auto;gap:2px 10px;background:var(--valtag);color:var(--valtag-ink);padding:8px 12px;border-radius:8px;box-shadow:0 2px 0 rgba(0,0,0,.18);font-size:14px}
+.dict i{font-style:normal;color:var(--rotulo);font-weight:700}
+.dict b{font-weight:700}
+.dict-title{grid-column:1/-1;font-size:12px;opacity:.75;margin-bottom:2px}
+.pairs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;min-height:38px;align-items:center}
+.pairchip{display:inline-flex;align-items:center;gap:6px;background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:4px 12px;font-size:15px}
+.pairchip i{font-style:normal;font-weight:700;color:var(--rotulo)}
+.pairchip b{color:var(--valor)}
+.trace{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:8px}
+.trace li{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border-radius:10px;padding:10px 12px;font-size:15px}
+.trace li span:first-child{flex:none;width:24px;height:24px;border-radius:50%;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;font:800 13px var(--font-head)}
+.field select{font:inherit;color:var(--ink);background:var(--surface);border:2px solid var(--line);border-radius:10px;padding:10px 12px}
+.two-levels{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+.two-levels div{background:var(--surface-2);border-radius:14px;padding:14px 16px;font-size:15px}
+.two-levels b{display:block;font-size:17px;margin-bottom:4px}
+
+/* armários */
+.modes{display:inline-flex;background:var(--surface-2);border-radius:12px;padding:4px;gap:4px;margin-bottom:18px}
+.modes button{font:700 15px var(--font-body);border:0;border-radius:9px;padding:10px 16px;background:transparent;color:var(--ink-soft);cursor:pointer}
+.modes button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.cabs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;align-items:start}
+.cab .ns{font:400 13px var(--font-body);color:var(--cab-ink-soft)}
+.taglist{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;padding:10px 12px;border-radius:10px;background:rgba(0,0,0,.18);font-size:14px;min-height:42px;align-items:center}
+.taglist span{background:var(--plate);color:var(--plate-ink);font-weight:700;border-radius:4px;padding:2px 8px}
+.taglist .lbl{background:none;color:var(--cab-ink-soft);font-weight:400;padding:0}
+.cab .btn-sm{margin-top:10px;background:var(--plate);color:var(--plate-ink)}
+
+/* percorrer */
+.walk{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px;align-items:start}
+.algo{list-style:none;counter-reset:a;padding:0;margin:0 0 16px;display:grid;gap:6px}
+.algo li{counter-increment:a;display:flex;gap:10px;font-size:15px;padding:8px 12px;border-radius:10px;background:var(--surface-2)}
+.algo li::before{content:counter(a);flex:none;width:22px;height:22px;border-radius:50%;background:var(--brand);color:var(--on-brand);display:grid;place-items:center;font:800 12px var(--font-head)}
+.algo li.now{background:var(--valor-bg);font-weight:700}
+.qbox{background:var(--surface-2);border-radius:14px;padding:16px 18px}
+.qbox h3{font-size:19px;margin-bottom:10px}
+.result{display:flex;flex-wrap:wrap;gap:8px;min-height:40px;padding:10px;border:2px dashed var(--line);border-radius:12px;margin-top:10px;align-items:center}
+.result span{background:var(--ok-bg);color:var(--ok);font-weight:700;border-radius:8px;padding:4px 10px;font-size:15px}
+.result .empty{background:none;color:var(--ink-soft);font-weight:400}
+.progress-g{font-size:15px;color:var(--ink-soft);margin:10px 0 0}
+.filters{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.walk .drawers,.cabs .drawers{max-height:none}
+.walk .drawer,.walk .cab-legend,.cabs .drawer,.cabs .cab-legend{grid-template-columns:132px 1fr}
+.walk .plate,.cabs .plate{min-width:0;width:100%;font-size:14px;overflow-wrap:break-word;padding:3px 6px}
+.dict b{overflow-wrap:break-word}
+.walk .dict,.cabs .dict{font-size:13px}
+@media (max-width:1100px){.walk,.two-levels,.olhar{grid-template-columns:1fr}}
+@media (max-width:700px){.book{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><b>Objetos dentro do armário</b><span>Garotas APPlicadas: fichas, dicionários e armários do TinyDB</span></div>
+    <div class="prog"><span id="progtext"></span><div class="bar"><i id="progbar"></i></div></div>
+    <button class="btn btn-ghost btn-sm" id="reset" type="button">Recomeçar</button>
+  </div>
+</header>
+<div class="wrap">
+  <nav class="trail" aria-label="Missões"><h2>Trilha de missões</h2><ol id="trail"></ol></nav>
+  <main class="stage" id="stage" tabindex="-1"></main>
+</div>
+<script>
+(function(){
+"use strict";
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const reduce=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* ---------- armazenamento ---------- */
+const KP="obj-oda-progresso-v1", KA="obj-oda-amigas-v1";
+function load(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}}
+function save(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+const freshP=()=>({unlocked:1,m:1,s:0,view:null,f:{}});
+let P=load(KP,null); if(!P||typeof P!=="object"||!P.f) P=freshP();
+let AM=load(KA,[]); if(!Array.isArray(AM)) AM=[];
+const saveP=()=>save(KP,P), saveA=()=>save(KA,AM);
+function flag(k,v){ if(v===undefined) return P.f[k]; P.f[k]=v; saveP(); }
+function aStore(r,v){const i=AM.findIndex(d=>d.r===r); if(i>=0){AM[i].v=v; saveA(); return "replace"} AM.push({r,v}); saveA(); return "new"}
+const SEED_AM=[{r:"Bia",v:{nome:"Bia",idade:14,cor:"roxo"}},{r:"Duda",v:{nome:"Duda",idade:15,cor:"verde"}}];
+function ensureAM(){ if(!AM.length){ AM=SEED_AM.map(d=>({r:d.r,v:{...d.v}})); saveA(); } }
+
+/* ---------- componentes ---------- */
+const lockSvg=`<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="8" rx="2" fill="currentColor"/><path d="M5 7V5a3 3 0 0 1 6 0v2" stroke="currentColor" stroke-width="2" fill="none"/></svg>`;
+const checkSvg=`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+function dictHTML(o){return `<span class="dict"><span class="dict-title">ficha (dicionário)</span>${Object.entries(o).map(([k,v])=>`<i>${esc(k)}</i><b>${esc(v)}</b>`).join("")}</span>`}
+function valHTML(v){return (v&&typeof v==="object")?dictHTML(v):`<span class="valtag">${esc(v)}</span>`}
+function cabinetHTML(items,o={}){
+  const open=o.open||new Set(), title=o.title||"Armário";
+  const head=`<div class="cab-top"><span>${esc(title)}</span><small>${items.length} ${items.length===1?"gaveta":"gavetas"}</small></div>${o.ns?`<div class="ns" style="padding:0 4px 8px">Namespace: ${esc(o.ns)}</div>`:""}`;
+  const body=!items.length?`<div class="drawers"><p class="cab-empty">Nenhuma gaveta ainda.</p></div>`:
+  `<div class="cab-legend"><span>rótulo</span><span>valor</span></div><div class="drawers">${items.map(d=>{
+    const cls=["drawer",open.has(d.r)?"open":"",o.fresh===d.r?"fresh":"",o.hi===d.r?"hi":"",o.dimOthers&&o.hi!==d.r?"dim":""].join(" ");
+    return `<div class="${cls}" data-r="${esc(d.r)}"><div class="front"><span class="plate">${esc(d.r)}</span><span class="handle" aria-hidden="true"></span></div><div class="inside" ${open.has(d.r)?"":'aria-hidden="true"'}>${valHTML(d.v)}</div></div>`}).join("")}</div>`;
+  return `<div class="cab" role="group" aria-label="${esc(title)}">${head}${body}${o.extra||""}</div>`;
+}
+function scrollToDrawer(root,r){ const el=$$(".drawer",root).find(d=>d.dataset.r===r); if(el) el.scrollIntoView({block:"nearest",behavior:reduce?"auto":"smooth"}); }
+function task(k,t){return `<li data-k="${k}" class="${flag(k)?"ok":""}"><span class="box" aria-hidden="true"></span><span>${t}</span></li>`}
+function refreshTasks(root){ $$(".tasks li",root).forEach(li=>li.classList.toggle("ok",!!flag(li.dataset.k))) }
+function quizHTML(q){return `<fieldset class="quiz"><legend>${q.q}</legend>${q.o.map((o,i)=>`<button type="button" class="opt" data-i="${i}">${o.t}</button>`).join("")}<div class="fb" aria-live="polite"></div></fieldset>`}
+function wireQuiz(root,q,key){
+  const fb=$(".fb",root);
+  const show=i=>{const o=q.o[i]; $$(".opt",root).forEach(x=>x.classList.remove("sel-ok","sel-err")); $$(".opt",root)[i].classList.add(o.ok?"sel-ok":"sel-err"); fb.className="fb "+(o.ok?"ok":"err"); fb.innerHTML=(o.ok?"<strong>Isso mesmo.</strong> ":"<strong>Ainda não.</strong> ")+o.fb;};
+  $$(".opt",root).forEach(b=>b.addEventListener("click",()=>{const i=+b.dataset.i; show(i); if(q.o[i].ok){flag(key,true); updateNav();}}));
+  if(flag(key)) show(q.o.findIndex(o=>o.ok));
+}
+function singleQuiz(q,key){return {k:"Verificar",need:"Responda a pergunta para concluir a missão.",ready:()=>!!flag(key),render(el){el.innerHTML=quizHTML(q); wireQuiz(el,q,key);}}}
+function sortList(el,items,choices,key,doneMsg){
+  const done=flag(key)||{};
+  el.insertAdjacentHTML("beforeend",`<ul class="sort">${items.map((it,i)=>`<li data-i="${i}"><span>${it.t}</span><span class="choices">${(it.c||choices).map((c,j)=>`<button type="button" data-j="${j}">${c}</button>`).join("")}</span><p class="why" aria-live="polite" hidden></p></li>`).join("")}</ul><div class="fb" id="sortfb" aria-live="polite"></div>`);
+  const fin=$("#sortfb",el);
+  const check=()=>{ if(Object.keys(flag(key)||{}).length===items.length){ fin.className="fb ok"; fin.innerHTML=doneMsg; updateNav(); } };
+  const setOk=(li,i)=>{const it=items[i]; li.className="ok"; $$("button",li).forEach(b=>{b.disabled=true; b.classList.toggle("picked",+b.dataset.j===it.a);}); const w=$(".why",li); w.hidden=false; w.textContent=it.fb;};
+  $$(".sort li",el).forEach(li=>{
+    const i=+li.dataset.i, it=items[i];
+    if(done[i]) setOk(li,i);
+    $$("button",li).forEach(b=>b.addEventListener("click",()=>{
+      const j=+b.dataset.j;
+      if(j===it.a){ const d=flag(key)||{}; d[i]=1; flag(key,d); setOk(li,i); check(); }
+      else { li.className="err"; const w=$(".why",li); w.hidden=false; w.textContent=(it.w&&it.w[j])||it.fbw||"Ainda não. Tente a outra opção."; }
+    }));
+  });
+  check();
+}
+
+/* ---------- dados ---------- */
+const BOOKS=[
+  {titulo:"Mitos Gregos",autora:"Ana Lima",paginas:180,genero:"aventura"},
+  {titulo:"Poemas de Bolso",autora:"Rita Sol",paginas:64,genero:"poesia"},
+  {titulo:"Atlas do Céu",autora:"Lúcia Prado",paginas:120,genero:"ciência"},
+  {titulo:"A Ilha Perdida",autora:"Ana Lima",paginas:142,genero:"aventura"},
+  {titulo:"Contos de Assombração",autora:"Davi Rocha",paginas:210,genero:"terror"},
+  {titulo:"Diário de Bordo",autora:"Rita Sol",paginas:96,genero:"aventura"}
+];
+const BOOKS_G=BOOKS.map(b=>({r:b.titulo,v:{...b}}));
+
+/* ---------- missões ---------- */
+const M=[];
+
+/* Missão 1: objetos e campos */
+const HOT=[
+  {id:"titulo",label:"título",val:"Mitos Gregos",main:1,msg:"O título muda de um livro para outro. É um campo."},
+  {id:"autora",label:"autora",val:"Ana Lima",main:1,msg:"Cada livro tem quem o escreveu. É um campo."},
+  {id:"genero",label:"gênero",val:"aventura",main:1,msg:"Outros livros são de poesia, terror, ciência. É um campo."},
+  {id:"paginas",label:"páginas",val:"180",main:1,msg:"Cada livro tem um número de páginas. É um campo."},
+  {id:"arte",label:"ilustração da capa",val:"(imagem)",main:0,msg:"A ilustração também é um campo, como uma foto. Para o app ficar simples, vamos deixar imagens de fora hoje."},
+  {id:"sinopse",label:"sinopse",val:"(texto longo)",main:0,msg:"A sinopse também é um campo. Quem cria o app decide se ela entra ou não. Hoje vamos deixá-la de fora."}
+];
+M.push({t:"Tudo é um objeto",steps:[
+{k:"Entender",ready:()=>true,render(el){
+  el.innerHTML=`<div class="cols"><div class="prose">
+  <p class="lead">Na Parte 1, cada gaveta guardava uma informação só. Mas quase tudo o que um app precisa lembrar tem várias informações ao mesmo tempo.</p>
+  <p>Um livro tem título, autora e número de páginas. Uma amiga tem nome, idade e cor favorita. Em programação, cada uma dessas coisas é um <strong>objeto</strong>, e cada característica dele é um <strong>campo</strong>.</p>
+  <p>Antes de escrever qualquer bloco, programadoras descobrem os campos de um objeto em três passos:</p>
+  <ol class="algo" style="max-width:520px"><li><span><strong>Olhe</strong> para o objeto e repare em tudo o que aparece sobre ele.</span></li><li><span><strong>Pergunte</strong> se aquilo muda de um objeto para outro, se é texto ou número e qual campo identifica o objeto.</span></li><li><span><strong>Anote</strong> a ficha do objeto: o nome de cada campo, o tipo e um exemplo.</span></li></ol>
+  <p>Nas próximas missões você vai fazer os três passos com um livro.</p>
+  </div><aside class="howto"><h2>Como este exercício funciona</h2>
+  <p>São 6 missões. Cada uma tem etapas para entender, experimentar e verificar. Quando você termina uma missão, a próxima é desbloqueada na trilha à esquerda.</p>
+  <p>Seu progresso fica salvo neste computador. Se outra pessoa for usar o computador depois, clique em Recomeçar, no topo da página.</p></aside></div>`;
+}},
+{k:"Olhar",need:"Encontre as quatro informações principais do livro para continuar.",ready:()=>HOT.filter(h=>h.main).every(h=>(flag("m1hot")||[]).includes(h.id)),render(el){
+  el.innerHTML=`<div class="olhar"><div>
+  <div class="prose"><p class="lead">Olhe a capa e a contracapa deste livro. Clique em cada informação que aparece sobre ele.</p><p class="small">São 4 informações principais, e há mais duas escondidas.</p></div>
+  <div class="book">
+    <div class="cover">
+      <button type="button" class="hot b-title" data-h="titulo">Mitos Gregos</button>
+      <button type="button" class="hot b-author" data-h="autora">Ana Lima</button>
+      <button type="button" class="hot b-art" data-h="arte" aria-label="Ilustração da capa"><svg viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="44" r="22" fill="#F5B921"/><g stroke="#F5B921" stroke-width="5" stroke-linecap="round"><path d="M50 8v8M50 72v8M14 44h8M78 44h8M24 18l6 6M70 64l6 6M24 70l6-6M70 24l6-6"/></g><path d="M10 92c14-10 26-10 40 0s26 10 40 0" stroke="#fff" stroke-width="4" fill="none"/></svg></button>
+      <button type="button" class="hot b-sticker" data-h="genero">aventura</button>
+    </div>
+    <div class="back">
+      <button type="button" class="hot b-syn" data-h="sinopse">Uma garota encontra um mapa antigo dentro de um livro da biblioteca e parte numa viagem pelas ilhas onde os deuses gregos ainda contam histórias.</button>
+      <button type="button" class="hot b-pages" data-h="paginas">180 páginas</button>
+    </div>
+  </div>
+  <div class="fb" id="fb" aria-live="polite"></div>
+  </div><div class="notepad"><h3>Livro</h3><ul id="np"></ul></div></div>`;
+  const found=new Set(flag("m1hot")||[]);
+  const draw=()=>{ $$(".hot",el).forEach(b=>{const h=HOT.find(x=>x.id===b.dataset.h); b.classList.toggle("found",found.has(h.id)); b.classList.toggle("extra",!h.main);});
+    const l=HOT.filter(h=>found.has(h.id)); $("#np",el).innerHTML=l.length?l.map(h=>`<li class="${h.main?"":"extra"}">${h.label}: ${h.val}</li>`).join(""):`<li class="none">Clique nas informações do livro.</li>`; };
+  draw();
+  $$(".hot",el).forEach(b=>b.addEventListener("click",()=>{const h=HOT.find(x=>x.id===b.dataset.h); found.add(h.id); flag("m1hot",[...found]); draw();
+    const fb=$("#fb",el); fb.className="fb "+(h.main?"ok":"info"); fb.innerHTML=`<strong>${h.label[0].toUpperCase()+h.label.slice(1)}.</strong> ${h.msg}`; updateNav();}));
+}},
+{k:"Perguntar",need:"Classifique todas as frases para continuar.",ready:()=>Object.keys(flag("m1s")||{}).length>=6,render(el){
+  el.innerHTML=`<div class="prose"><p class="lead">A primeira pergunta é: isso muda de um livro para outro? Se muda, é um campo. Se todo livro tem igual, não precisa ser anotado.</p></div>`;
+  sortList(el,[
+    {t:"O título",a:0,fb:"Cada livro tem o seu. É um campo."},
+    {t:"Ser feito de papel",a:1,fb:"Todo livro da estante é de papel. Anotar isso não ajuda a diferenciar um livro de outro."},
+    {t:"O número de páginas",a:0,fb:"Muda de um livro para outro. É um campo."},
+    {t:"Ter uma capa",a:1,fb:"Todo livro tem capa. O que muda é o que está nela, como o título e a ilustração."},
+    {t:"O gênero (aventura, poesia, terror...)",a:0,fb:"Muda de um livro para outro. É um campo."},
+    {t:"Ter as páginas numeradas",a:1,fb:"Todos os livros têm. Não diferencia um livro de outro."}
+  ],["É um campo","Não é campo"],"m1s","<strong>Pronto.</strong> Campo é o que muda de um objeto para outro. O que é igual em todos não precisa ir para a ficha.");
+}},
+singleQuiz({q:"Você vai criar um app para guardar as músicas de uma playlist. Qual destes é um campo do objeto música?",o:[
+  {t:"Ter som",fb:"Toda música tem som. Isso não diferencia uma música de outra."},
+  {t:"O nome de quem canta",ok:true,fb:"O nome de quem canta muda de uma música para outra. Outros campos possíveis: título, duração, ano."},
+  {t:"Poder ser ouvida com fone",fb:"Vale para todas as músicas. Não é um campo."}]},"m1q")
+]});
+
+/* Missão 2: a ficha */
+const FICHA=[
+  {ex:"Mitos Gregos",names:["Título do livro","titulo"],ok:1,tipo:"texto"},
+  {ex:"Ana Lima",names:["autora","Autora do livro"],ok:0,tipo:"texto"},
+  {ex:"180",names:["paginas","Número de páginas"],ok:0,tipo:"número"},
+  {ex:"aventura",names:["Gênero","genero"],ok:1,tipo:"texto"}
+];
+M.push({t:"A ficha do objeto",steps:[
+{k:"Entender",ready:()=>true,render(el){
+  el.innerHTML=`<div class="cols"><div class="prose">
+  <p class="lead">Depois de olhar, vêm mais duas perguntas sobre cada campo.</p>
+  <p><strong>É texto ou número?</strong> Um campo é número quando faz sentido fazer conta com ele: somar, comparar, calcular a média. Se não faz sentido fazer conta, é texto, mesmo que tenha algarismos.</p>
+  <p><strong>Qual campo identifica o objeto?</strong> É o campo que nunca se repete e que você já sabe na hora de procurar. Ele vai ser o rótulo da gaveta no TinyDB.</p>
+  <p>Com as respostas, você anota a ficha do objeto: uma tabela com o nome de cada campo, o tipo e um exemplo.</p>
+  </div><div><div class="tbl-wrap"><table><caption class="sr">Ficha do objeto amiga</caption><thead><tr><th>Campo</th><th>Tipo</th><th>Exemplo</th></tr></thead><tbody>
+  <tr><td><strong>nome</strong> (rótulo)</td><td>texto</td><td>Bia</td></tr><tr><td>idade</td><td>número</td><td>14</td></tr><tr><td>cor</td><td>texto</td><td>roxo</td></tr></tbody></table></div>
+  <p class="small" style="margin-top:10px">Exemplo: a ficha do objeto amiga.</p></div></div>`;
+}},
+{k:"Texto ou número?",need:"Classifique todos os campos para continuar.",ready:()=>Object.keys(flag("m2t")||{}).length>=6,render(el){
+  el.innerHTML=`<div class="prose"><p class="lead">Estes são campos do objeto amiga. Cada um é texto ou número?</p></div>`;
+  sortList(el,[
+    {t:"nome: Bia",a:0,fb:"Não dá para fazer conta com um nome. É texto."},
+    {t:"idade: 14",a:1,fb:"Dá para fazer conta: daqui a 2 anos, a idade será 14 + 2. É número."},
+    {t:"cor favorita: roxo",a:0,fb:"É uma palavra. É texto."},
+    {t:"altura: 1.62",a:1,fb:"Dá para comparar alturas e calcular a média da turma. É número, escrito com ponto no lugar da vírgula."},
+    {t:"telefone: 9 8812-1001",a:0,fb:"Ninguém soma ou compara telefones, e ele tem espaço e traço. É texto, mesmo sendo feito de algarismos.",w:{1:"Ele tem algarismos, mas ninguém faz conta com telefone. Além disso, tem espaço e traço."}},
+    {t:"aniversário: 12/05",a:0,fb:"A barra não é uma divisão. Para um primeiro app, guardar a data como texto é o mais simples.",w:{1:"Parece conta, mas a barra só separa dia e mês. Ninguém divide 12 por 5 aqui."}}
+  ],["Texto","Número"],"m2t","<strong>Pronto.</strong> A regra é: se faz sentido fazer conta, é número. Se não, é texto.");
+}},
+{k:"Qual identifica?",need:"Escolha o identificador dos três objetos para continuar.",ready:()=>Object.keys(flag("m2i")||{}).length>=3,render(el){
+  el.innerHTML=`<div class="prose"><p class="lead">Para cada objeto, qual campo deve ser o rótulo da gaveta?</p><p>O rótulo precisa ser diferente para cada objeto guardado. Se dois objetos tiverem o mesmo rótulo, o segundo substitui o primeiro na mesma gaveta.</p></div>`;
+  sortList(el,[
+    {t:"Uma amiga na sua lista de amigas",c:["nome","idade","cor favorita"],a:0,fb:"Na sua lista, cada amiga tem um nome diferente, e é pelo nome que você procura.",w:{1:"Várias amigas podem ter a mesma idade. Uma substituiria a outra na gaveta.",2:"Duas amigas podem gostar da mesma cor. Uma substituiria a outra na gaveta."}},
+    {t:"Um livro da sua estante",c:["autora","título","gênero"],a:1,fb:"Na sua estante, não há dois livros com o mesmo título.",w:{0:"A Ana Lima escreveu dois livros da estante. Um substituiria o outro na gaveta.",2:"Três livros da estante são de aventura. Eles disputariam a mesma gaveta."}},
+    {t:"Uma aluna no sistema de uma escola grande, que tem três alunas chamadas Ana Souza",c:["nome","número de matrícula","turma"],a:1,fb:"Quando o nome pode se repetir, usa-se um código que a escola garante ser único, como a matrícula.",w:{0:"Com três Anas Souza, as três disputariam a mesma gaveta. Nesse caso, o nome não é único.",2:"Uma turma tem muitas alunas. Todas iriam para a mesma gaveta."}}
+  ],[],"m2i","<strong>Pronto.</strong> Um bom rótulo é único e é uma informação que você sabe na hora de procurar.");
+}},
+{k:"Anotar",need:"Corrija a ficha para concluir a missão.",ready:()=>!!flag("m2f"),render(el){
+  const st=flag("m2fs")||{};
+  el.innerHTML=`<div><div class="prose">
+  <p class="lead">Agora anote a ficha do livro. Para cada campo, escolha como escrever o nome, o tipo, e marque qual campo é o rótulo.</p>
+  <ul class="tips"><li>Nome do campo curto, sem acento e sem espaço</li><li>Tipo número só quando faz sentido fazer conta</li><li>O rótulo é único para cada livro da estante</li></ul>
+  <p class="small" style="margin-top:14px">Lembre que a autora Ana Lima escreveu dois livros da estante.</p>
+  </div><div style="max-width:820px;margin-top:18px"><div class="tbl-wrap"><table class="ficha"><caption class="sr">Ficha do objeto livro</caption><thead><tr><th>Campo</th><th>Tipo</th><th>Exemplo</th><th>Rótulo?</th></tr></thead><tbody>
+  ${FICHA.map((r,i)=>`<tr data-i="${i}"><td class="cn"><label class="sr" for="n${i}">Nome do campo ${i+1}</label><select id="n${i}"><option value="">escolha</option>${r.names.map((n,j)=>`<option value="${j}" ${st["n"+i]===String(j)?"selected":""}>${n}</option>`).join("")}</select></td>
+  <td class="ct"><label class="sr" for="t${i}">Tipo do campo ${i+1}</label><select id="t${i}"><option value="">escolha</option>${["texto","número"].map(t=>`<option ${st["t"+i]===t?"selected":""}>${t}</option>`).join("")}</select></td>
+  <td>${r.ex}</td><td class="cr"><label class="radio"><input type="radio" name="rot" value="${i}" ${st.r===String(i)?"checked":""}><span class="sr">Este campo é o rótulo</span></label></td></tr>`).join("")}
+  </tbody></table></div>
+  <div class="row" style="margin-top:16px"><button type="button" class="btn btn-run" id="chk">Conferir a ficha</button></div>
+  <div class="fb" id="fb" aria-live="polite"></div></div></div>`;
+  const keep=()=>{const s={}; FICHA.forEach((r,i)=>{s["n"+i]=$("#n"+i,el).value; s["t"+i]=$("#t"+i,el).value;}); const rr=$('input[name="rot"]:checked',el); s.r=rr?rr.value:""; flag("m2fs",s);};
+  $$("select,input",el).forEach(x=>x.addEventListener("change",()=>{keep(); $$("td",el).forEach(td=>td.classList.remove("good","bad"));}));
+  const check=()=>{
+    const msgs=[]; let ok=true, blank=false;
+    FICHA.forEach((r,i)=>{
+      const n=$("#n"+i,el).value, t=$("#t"+i,el).value, tdn=$(`tr[data-i="${i}"] .cn`,el), tdt=$(`tr[data-i="${i}"] .ct`,el);
+      if(n===""){ok=false; blank=true; tdn.className="cn bad";}
+      else if(+n!==r.ok){ok=false; tdn.className="cn bad"; msgs.push(`“${r.names[+n]}” tem espaço, acento ou letra maiúscula. Use “${r.names[r.ok]}”.`);}
+      else tdn.className="cn good";
+      if(t===""){ok=false; blank=true; tdt.className="ct bad";}
+      else if(t!==r.tipo){ok=false; tdt.className="ct bad"; msgs.push(r.tipo==="número"?"Páginas é número: dá para comparar qual livro é maior ou somar as páginas lidas.":`${r.names[r.ok]} é texto: não dá para fazer conta com ${r.ex}.`);}
+      else tdt.className="ct good";
+    });
+    const rr=$('input[name="rot"]:checked',el);
+    $$(".cr",el).forEach(td=>td.classList.remove("bad","good"));
+    if(!rr){ok=false; blank=true;}
+    else if(rr.value!=="0"){ok=false; rr.closest("td").classList.add("bad"); const why={"1":"A autora se repete: Ana Lima escreveu dois livros da estante.","2":"Dois livros podem ter o mesmo número de páginas.","3":"Três livros da estante são de aventura."}; msgs.push(why[rr.value]);}
+    else rr.closest("td").classList.add("good");
+    const fb=$("#fb",el);
+    if(ok){fb.className="fb ok"; fb.innerHTML="<strong>A ficha está pronta.</strong> Quatro campos com nomes simples, o tipo certo e o título marcado como rótulo. Essa ficha descreve o objeto livro."; flag("m2f",true); updateNav();}
+    else {if(blank) msgs.unshift("Ainda há escolhas em branco, marcadas em vermelho."+(rr?"":" Marque também qual campo é o rótulo.")); fb.className="fb err"; fb.innerHTML=msgs.join("<br>");}
+  };
+  $("#chk",el).addEventListener("click",check);
+  if(flag("m2f")) check();
+}}]});
+
+/* Missão 3: dicionário */
+M.push({t:"A ficha dentro da gaveta",steps:[
+{k:"Entender",ready:()=>true,render(el){
+  el.innerHTML=`<div class="cols"><div class="prose">
+  <p class="lead">Na Parte 1, cada gaveta do TinyDB guardava um valor só. Um objeto tem vários campos. Como guardar a ficha inteira?</p>
+  <p>A ficha vira um <strong>dicionário</strong>: uma lista de pares. Cada par tem uma <span class="tag-r">chave</span>, que é o nome do campo, e um <span class="tag-v">valor</span>, que é o conteúdo daquele campo.</p>
+  <p>O dicionário inteiro vai para dentro de uma gaveta. O rótulo da gaveta é o campo que identifica o objeto.</p>
+  <div class="two-levels"><div><b>Rótulo</b>Identifica a gaveta. Diz qual objeto está guardado ali.</div><div><b>Chave</b>Identifica um campo dentro da ficha. Diz qual informação você quer.</div></div>
+  <p class="small">No App Inventor, os blocos de dicionário aparecem em inglês: <em>make a dictionary</em> (criar dicionário), <em>key</em> (chave) e <em>value</em> (valor).</p>
+  </div><div>${cabinetHTML(SEED_AM,{title:"Armário Amigas",open:new Set(["Bia","Duda"])})}</div></div>`;
+}},
+{k:"Guardar fichas",need:"Guarde a ficha de 2 amigas para continuar.",ready:()=>(flag("m3n")||[]).length>=2,render(el){
+  el.innerHTML=`<div class="cols"><div>
+  <div class="prose"><p class="lead">Preencha os campos, veja o dicionário sendo montado e guarde a ficha.</p><p class="do">Missão: guarde a ficha de 2 amigas.</p></div>
+  <div class="panel"><div class="row" style="align-items:flex-end">
+    <div class="field"><label for="fn">nome (texto)</label><input id="fn" autocomplete="off" placeholder="Ex.: Lia"></div>
+    <div class="field" style="max-width:130px"><label for="fi">idade (número)</label><input id="fi" autocomplete="off" inputmode="numeric" placeholder="Ex.: 13"></div>
+    <div class="field"><label for="fc">cor (texto)</label><input id="fc" autocomplete="off" placeholder="Ex.: amarelo"></div></div>
+    <p class="small" style="margin:12px 0 0">Dicionário montado:</p><div class="pairs" id="pairs"></div>
+    <div class="row" style="margin-top:12px"><button type="button" class="btn btn-run" id="sv">Guardar a ficha no armário</button></div></div>
+  <div class="fb" id="fb" aria-live="polite"></div>
+  </div><div id="cab"></div></div>`;
+  const draw=o=>{$("#cab",el).innerHTML=cabinetHTML(AM,{title:"Armário Amigas",open:new Set(AM.map(d=>d.r)),...(o||{})}); if(o&&o.hi) scrollToDrawer(el,o.hi);};
+  draw();
+  const pairs=()=>{const n=$("#fn",el).value.trim(), i=$("#fi",el).value.trim(), c=$("#fc",el).value.trim();
+    $("#pairs",el).innerHTML=[["nome",n],["idade",i],["cor",c]].map(([k,v])=>`<span class="pairchip"><i>${k}</i>→<b>${v?esc(v):"…"}</b></span>`).join("");};
+  pairs(); $$("#fn,#fi,#fc",el).forEach(x=>{x.addEventListener("input",pairs); x.addEventListener("keydown",e=>{if(e.key==="Enter") save();});});
+  const fb=$("#fb",el);
+  function save(){
+    const n=$("#fn",el).value.trim(), i=$("#fi",el).value.trim(), c=$("#fc",el).value.trim();
+    if(!n){fb.className="fb err"; fb.textContent="O campo nome está vazio. Ele é o rótulo da gaveta, então não pode faltar."; return}
+    if(!/^\d+$/.test(i)){fb.className="fb err"; fb.textContent="idade é um campo do tipo número. Escreva só algarismos, como 13."; return}
+    if(!c){fb.className="fb err"; fb.textContent="Preencha a cor favorita."; return}
+    const r=aStore(n,{nome:n,idade:+i,cor:c});
+    const ls=flag("m3n")||[]; if(!ls.includes(n)) ls.push(n); flag("m3n",ls);
+    fb.className="fb ok"; fb.innerHTML=r==="new"?`<strong>Ficha guardada.</strong> A gaveta ${esc(n)} foi criada e o dicionário inteiro está dentro dela.`:`<strong>A gaveta ${esc(n)} já existia.</strong> A ficha antiga foi substituída pela nova.`;
+    ["#fn","#fi","#fc"].forEach(s=>$(s,el).value=""); pairs(); draw(r==="new"?{fresh:n,hi:n}:{hi:n}); updateNav(); $("#fn",el).focus();
+  }
+  $("#sv",el).addEventListener("click",save);
+}},
+{k:"Ler um campo",need:"Faça as duas tarefas da lista para continuar.",ready:()=>!!flag("m3g")&&!!flag("m3x"),render(el){
+  ensureAM();
+  el.innerHTML=`<div class="cols"><div>
+  <div class="prose"><p class="lead">Para ler um campo de uma ficha guardada, são dois passos: abrir a gaveta pelo rótulo e, dentro da ficha, procurar a chave.</p></div>
+  <ul class="tasks">${task("m3g","Leia um campo que existe na ficha")}${task("m3x","Tente ler a chave altura, que nenhuma ficha tem")}</ul>
+  <div class="panel"><div class="row" style="align-items:flex-end">
+    <div class="field"><label for="gr">Rótulo da gaveta</label><select id="gr">${AM.map(d=>`<option>${esc(d.r)}</option>`).join("")}</select></div>
+    <div class="field"><label for="gk">Chave do campo</label><select id="gk"><option>nome</option><option>idade</option><option>cor</option><option>altura</option></select></div>
+    <button type="button" class="btn btn-run" id="go2">Pegar o valor</button></div>
+    <ol class="trace" id="tr"></ol>
+    <div class="answer"><span>Resposta</span><output id="out">…</output></div></div>
+  <div class="fb" id="fb" aria-live="polite"></div>
+  </div><div id="cab"></div></div>`;
+  const draw=o=>{$("#cab",el).innerHTML=cabinetHTML(AM,{title:"Armário Amigas",...(o||{})}); if(o&&o.hi) scrollToDrawer(el,o.hi);};
+  draw();
+  $("#go2",el).addEventListener("click",()=>{
+    const r=$("#gr",el).value, k=$("#gk",el).value, d=AM.find(x=>x.r===r), fb=$("#fb",el);
+    draw({open:new Set([r]),hi:r,dimOthers:true});
+    const has=Object.prototype.hasOwnProperty.call(d.v,k);
+    $("#tr",el).innerHTML=`<li><span>1</span><span>Abriu a gaveta com o rótulo <strong>${esc(r)}</strong> e pegou a ficha que estava dentro.</span></li><li><span>2</span><span>Na ficha, procurou a chave <strong>${esc(k)}</strong>. ${has?`Encontrou o valor ${esc(d.v[k])}.`:"Essa chave não existe na ficha."}</span></li>`;
+    $("#out",el).textContent=has?d.v[k]:"não achei";
+    if(has){fb.className="fb ok"; fb.innerHTML=`<strong>Valor encontrado.</strong> O rótulo encontrou a amiga. A chave encontrou a informação dentro da ficha dela.`; flag("m3g",true);}
+    else {fb.className="fb info"; fb.innerHTML=`<strong>A gaveta existe, mas a ficha não tem a chave altura.</strong> Só existem na ficha os campos que foram anotados. Se o app precisar da altura, esse campo tem que entrar na ficha antes de guardar.`; flag("m3x",true);}
+    refreshTasks(el); updateNav();
+  });
+}},
+singleQuiz({q:"A gaveta Bia guarda a ficha nome: Bia, idade: 14, cor: roxo. Para descobrir a cor favorita da Bia, o que você precisa informar?",o:[
+  {t:"Só a chave cor",fb:"Todas as fichas do armário têm a chave cor. Sem o rótulo, não dá para saber de qual amiga é a cor."},
+  {t:"O rótulo Bia e a chave cor",ok:true,fb:"O rótulo abre a gaveta certa. A chave escolhe o campo dentro da ficha."},
+  {t:"O rótulo roxo",fb:"roxo é um valor dentro da ficha, não o rótulo de uma gaveta. O rótulo é Bia."}]},"m3q")
+]});
+
+/* Missão 4: armários separados */
+const LUA_AMIGA={nome:"Lua",idade:15,cor:"verde"}, LUA_LIVRO={titulo:"Lua",autora:"Rita Sol",paginas:58,genero:"poesia"};
+const BASE_ONE=()=>[{r:"Bia",v:{nome:"Bia",idade:14,cor:"roxo"}},{r:"Mitos Gregos",v:{titulo:"Mitos Gregos",autora:"Ana Lima",paginas:180,genero:"aventura"}},{r:"Duda",v:{nome:"Duda",idade:15,cor:"verde"}},{r:"Atlas do Céu",v:{titulo:"Atlas do Céu",autora:"Lúcia Prado",paginas:120,genero:"ciência"}}];
+let NS={one:BASE_ONE(),am:BASE_ONE().filter(d=>d.v.nome),lv:BASE_ONE().filter(d=>d.v.titulo),mode:"one",tags:{}};
+M.push({t:"Um armário para cada objeto",steps:[
+{k:"Entender",ready:()=>true,render(el){
+  el.innerHTML=`<div class="cols"><div class="prose">
+  <p class="lead">Um app pode guardar mais de um tipo de objeto. Um app de leitura pode guardar livros e também as amigas que pegaram livros emprestados.</p>
+  <p>Se tudo for para o mesmo armário, as gavetas se misturam: ficha de amiga ao lado de ficha de livro. Isso causa dois problemas, que você vai ver na próxima etapa.</p>
+  <p>No TinyDB, cada armário tem um nome, chamado <strong>Namespace</strong>. Ele é uma propriedade do componente TinyDB, no Designer. Componentes com Namespaces diferentes usam armários diferentes. Componentes com o mesmo Namespace usam o mesmo armário, mesmo que estejam em telas diferentes do app.</p>
+  <p class="small">Se você não mudar nada, o Namespace é TinyDB1.</p>
+  </div><div class="cabs">${cabinetHTML(NS.am,{title:"Armário Amigas",ns:"Amigas",open:new Set(NS.am.map(d=>d.r))})}${cabinetHTML(NS.lv,{title:"Armário Livros",ns:"Livros",open:new Set(NS.lv.map(d=>d.r))})}</div></div>`;
+}},
+{k:"Experimentar",need:"Faça as quatro tarefas da lista para continuar.",ready:()=>["m4a","m4b","m4c","m4d"].every(k=>flag(k)),render(el){
+  el.innerHTML=`<div class="prose"><p class="lead">Compare os dois jeitos. Existe uma amiga chamada Lua e também um livro de poemas chamado Lua.</p></div>
+  <ul class="tasks" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">${task("m4a","Num armário só: guarde a amiga Lua e depois o livro Lua")}${task("m4c","Num armário só: peça a lista de rótulos")}${task("m4b","Em armários separados: guarde a amiga Lua e o livro Lua")}${task("m4d","Em armários separados: peça a lista de rótulos das amigas")}</ul>
+  <div class="modes" role="group" aria-label="Jeito de guardar"><button type="button" data-m="one">Um armário para tudo</button><button type="button" data-m="two">Um armário para cada objeto</button></div>
+  <div class="row" style="margin-bottom:16px"><button type="button" class="btn btn-run btn-sm" id="ga">Guardar a amiga Lua</button><button type="button" class="btn btn-run btn-sm" id="gl">Guardar o livro Lua</button><button type="button" class="btn btn-ghost btn-sm" id="rs">Desfazer e começar de novo</button></div>
+  <div class="fb" id="fb" aria-live="polite" style="margin:0 0 16px"></div>
+  <div class="cabs" id="cabs"></div>`;
+  const fb=$("#fb",el);
+  const tl=(k)=>NS.tags[k]?`<div class="taglist"><span class="lbl">ObterRótulos devolveu:</span>${NS.tags[k].map(t=>`<span>${esc(t)}</span>`).join("")}</div>`:"";
+  const draw=(hi)=>{
+    $$(".modes button",el).forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.m===NS.mode)));
+    const btn=k=>`<button type="button" class="btn btn-sm" data-tags="${k}">Pedir a lista de rótulos</button>`;
+    $("#cabs",el).innerHTML=NS.mode==="one"
+      ? cabinetHTML(NS.one,{title:"Armário único",ns:"TinyDB1",open:new Set(NS.one.map(d=>d.r)),hi,extra:btn("one")+tl("one")})
+      : cabinetHTML(NS.am,{title:"Armário Amigas",ns:"Amigas",open:new Set(NS.am.map(d=>d.r)),hi,extra:btn("am")+tl("am")})+cabinetHTML(NS.lv,{title:"Armário Livros",ns:"Livros",open:new Set(NS.lv.map(d=>d.r)),hi,extra:btn("lv")+tl("lv")});
+    $$("[data-tags]",el).forEach(b=>b.addEventListener("click",()=>{
+      const k=b.dataset.tags, list=NS[k].map(d=>d.r); NS.tags[k]=list; draw();
+      if(k==="one"){fb.className="fb info"; fb.innerHTML="<strong>A lista veio misturada.</strong> Para mostrar só as amigas numa tela, o app teria que abrir cada gaveta e descobrir se a ficha é de amiga ou de livro."; flag("m4c",true);}
+      else if(k==="am"){fb.className="fb ok"; fb.innerHTML="<strong>Só amigas na lista.</strong> Com um armário para cada objeto, pedir os rótulos do armário Amigas já devolve exatamente o que a tela precisa mostrar."; flag("m4d",true);}
+      else {fb.className="fb info"; fb.innerHTML="Esta é a lista de rótulos do armário Livros. Tente também a do armário Amigas.";}
+      refreshTasks(el); updateNav();
+    }));
+    if(hi) scrollToDrawer(el,hi);
+  };
+  const put=(kind)=>{
+    const v=kind==="a"?{...LUA_AMIGA}:{...LUA_LIVRO};
+    if(NS.mode==="one"){
+      const i=NS.one.findIndex(d=>d.r==="Lua"); const prev=i>=0?NS.one[i].v:null;
+      if(i>=0) NS.one[i].v=v; else NS.one.push({r:"Lua",v});
+      NS.tags.one=null;
+      if(prev&&((prev.nome&&v.titulo)||(prev.titulo&&v.nome))){fb.className="fb err"; fb.innerHTML=`<strong>A ficha da ${prev.nome?"amiga":"o livro"} Lua sumiu.</strong> As duas usam o rótulo Lua e estão no mesmo armário. Como cada rótulo tem uma gaveta só, a segunda ficha substituiu a primeira.`; flag("m4a",true);}
+      else {fb.className="fb info"; fb.innerHTML=`Ficha ${kind==="a"?"da amiga":"do livro"} Lua guardada na gaveta Lua do armário único. Agora guarde ${kind==="a"?"o livro":"a amiga"} Lua.`;}
+    } else {
+      const arr=kind==="a"?NS.am:NS.lv, k=kind==="a"?"am":"lv"; const i=arr.findIndex(d=>d.r==="Lua"); if(i>=0) arr[i].v=v; else arr.push({r:"Lua",v}); NS.tags[k]=null;
+      const both=NS.am.some(d=>d.r==="Lua")&&NS.lv.some(d=>d.r==="Lua");
+      if(both){fb.className="fb ok"; fb.innerHTML="<strong>As duas fichas estão guardadas.</strong> Cada uma tem uma gaveta Lua no seu próprio armário, e uma não atrapalha a outra."; flag("m4b",true);}
+      else {fb.className="fb info"; fb.innerHTML=`Ficha guardada no armário ${kind==="a"?"Amigas":"Livros"}. Agora guarde ${kind==="a"?"o livro":"a amiga"} Lua.`;}
+    }
+    draw("Lua"); refreshTasks(el); updateNav();
+  };
+  $("#ga",el).addEventListener("click",()=>put("a")); $("#gl",el).addEventListener("click",()=>put("l"));
+  $("#rs",el).addEventListener("click",()=>{const m=NS.mode; NS={one:BASE_ONE(),am:BASE_ONE().filter(d=>d.v.nome),lv:BASE_ONE().filter(d=>d.v.titulo),mode:m,tags:{}}; fb.className="fb"; draw();});
+  $$(".modes button",el).forEach(b=>b.addEventListener("click",()=>{NS.mode=b.dataset.m; fb.className="fb"; draw();}));
+  draw();
+}},
+singleQuiz({q:"Um app tem duas telas. Na tela de cadastro, o TinyDB tem Namespace Livros. Na tela de lista, outro TinyDB também tem Namespace Livros. O que acontece?",o:[
+  {t:"Cada tela tem seu próprio armário, e a lista não vê os livros cadastrados.",fb:"O que define o armário é o Namespace, não a tela. Mesmo Namespace quer dizer mesmo armário."},
+  {t:"As duas telas usam o mesmo armário, então a lista vê os livros cadastrados.",ok:true,fb:"Mesmo Namespace, mesmo armário. É assim que uma tela consegue mostrar o que outra tela guardou."},
+  {t:"O app dá erro, porque dois componentes não podem ter o mesmo Namespace.",fb:"Usar o mesmo Namespace em telas diferentes é justamente o jeito de compartilhar um armário."}]},"m4q")
+]});
+
+/* Missão 5: percorrer e filtrar */
+const FILTERS={
+  g:{q:"Quais livros são de aventura?",campo:"genero",test:b=>b.genero==="aventura",desc:"Olhe o campo genero. É aventura?",yes:b=>`O campo genero de ${b.titulo} é aventura.`,no:b=>`O campo genero de ${b.titulo} é ${b.genero}, não aventura.`},
+  p:{q:"Quais livros têm menos de 150 páginas?",campo:"paginas",test:b=>b.paginas<150,desc:"Olhe o campo paginas. É menor que 150?",yes:b=>`${b.titulo} tem ${b.paginas} páginas, que é menos que 150.`,no:b=>`${b.titulo} tem ${b.paginas} páginas, que não é menos que 150.`}
+};
+M.push({t:"Abrir todas as gavetas",steps:[
+{k:"Entender",ready:()=>true,render(el){
+  el.innerHTML=`<div class="cols"><div class="prose">
+  <p class="lead">Até agora você procurou uma gaveta de cada vez, pelo rótulo. Mas e quando o app precisa mostrar uma lista de vários objetos?</p>
+  <p>O TinyDB tem uma ordem para isso: <strong>ObterRótulos</strong>. Ela devolve a lista com o rótulo de todas as gavetas de um armário.</p>
+  <p>Com essa lista, o app faz o mesmo passo para cada rótulo: abre a gaveta, pega a ficha e olha um campo. Se o campo tiver o que você procura, o objeto entra no resultado. Se não tiver, fica de fora. Isso se chama <strong>filtrar</strong>.</p>
+  <p>Na próxima etapa, você vai fazer o papel do app.</p>
+  </div><div>${cabinetHTML(BOOKS_G,{title:"Armário Livros",ns:"Livros",extra:`<div class="taglist"><span class="lbl">ObterRótulos devolve:</span>${BOOKS.map(b=>`<span>${esc(b.titulo)}</span>`).join("")}</div>`})}</div></div>`;
+}},
+{k:"Filtrar",need:"Termine os dois filtros para continuar.",ready:()=>!!flag("m5g")&&!!flag("m5p"),render(el){
+  let fk=flag("m5g")&&!flag("m5p")?"p":"g", idx=0, picked=[];
+  el.innerHTML=`<div class="walk"><div>
+  <div class="filters" role="group" aria-label="Escolha o filtro"><button type="button" class="btn btn-sm" data-f="g">Filtro 1: aventura</button><button type="button" class="btn btn-sm" data-f="p">Filtro 2: menos de 150 páginas</button></div>
+  <div class="qbox"><h3 id="fq"></h3>
+  <ol class="algo" id="algo"><li>Pegar a lista de rótulos com ObterRótulos</li><li>Abrir a próxima gaveta da lista e pegar a ficha</li><li id="algo3"></li><li>Se sim, colocar o livro no resultado</li></ol>
+  <p id="now" style="font-weight:700;margin:0 0 10px"></p>
+  <div class="row"><button type="button" class="btn btn-run" id="yes">Entra no resultado</button><button type="button" class="btn btn-ghost" id="no">Fica de fora</button></div>
+  <p class="progress-g" id="pg"></p>
+  <p class="small" style="margin:14px 0 4px">Resultado:</p><div class="result" id="res"></div></div>
+  <div class="fb" id="fb" aria-live="polite"></div>
+  </div><div id="cab"></div></div>`;
+  const fb=$("#fb",el);
+  const setF=k=>{fk=k; idx=0; picked=[]; fb.className="fb"; $$("[data-f]",el).forEach(b=>{b.className="btn btn-sm "+(b.dataset.f===k?"btn-primary":"btn-ghost"); if(flag("m5"+b.dataset.f)) b.textContent=b.textContent.replace(/ ✓$/,"")+" ✓";}); step();};
+  const step=()=>{
+    const F=FILTERS[fk]; $("#fq",el).textContent=F.q; $("#algo3",el).textContent=F.desc;
+    const done=idx>=BOOKS.length;
+    $$("#algo li",el).forEach((li,i)=>li.classList.toggle("now",!done&&i===1));
+    $("#res",el).innerHTML=picked.length?picked.map(t=>`<span>${esc(t)}</span>`).join(""):`<span class="empty">vazio</span>`;
+    $("#pg",el).textContent=`Gavetas abertas: ${Math.min(idx+(done?0:1),BOOKS.length)} de ${BOOKS.length}`;
+    $("#yes",el).disabled=done; $("#no",el).disabled=done;
+    if(done){ $("#now",el).textContent="Todas as gavetas foram abertas."; $("#cab",el).innerHTML=cabinetHTML(BOOKS_G,{title:"Armário Livros",ns:"Livros",open:new Set(BOOKS_G.filter(d=>F.test(d.v)).map(d=>d.r))}); return; }
+    const b=BOOKS[idx]; $("#now",el).textContent=`Gaveta ${idx+1}: ${b.titulo}`;
+    $("#cab",el).innerHTML=cabinetHTML(BOOKS_G,{title:"Armário Livros",ns:"Livros",open:new Set([b.titulo]),hi:b.titulo,dimOthers:true}); scrollToDrawer(el,b.titulo);
+  };
+  const answer=yes=>{
+    const F=FILTERS[fk], b=BOOKS[idx], right=F.test(b)===yes;
+    if(!right){fb.className="fb err"; fb.innerHTML=`<strong>Confira de novo.</strong> ${F.test(b)?F.yes(b):F.no(b)}`; return}
+    if(yes) picked.push(b.titulo);
+    fb.className="fb ok"; fb.innerHTML=F.test(b)?F.yes(b):F.no(b);
+    idx++;
+    if(idx>=BOOKS.length){ flag("m5"+fk,true);
+      fb.innerHTML=`<strong>Filtro concluído.</strong> ${picked.length} livros entraram no resultado. Para responder, foi preciso abrir as ${BOOKS.length} gavetas, porque a informação procurada estava dentro das fichas, e não nos rótulos.`+(fk==="p"?" Comparar com 150 é uma conta. Por isso paginas foi anotado como número na ficha.":"")+(flag("m5g")&&flag("m5p")?"":" Agora faça o outro filtro.");
+      $$("[data-f]",el).forEach(bb=>{ if(flag("m5"+bb.dataset.f)&&!/✓$/.test(bb.textContent)) bb.textContent+=" ✓"; });
+      updateNav(); }
+    step();
+  };
+  $("#yes",el).addEventListener("click",()=>answer(true)); $("#no",el).addEventListener("click",()=>answer(false));
+  $$("[data-f]",el).forEach(b=>b.addEventListener("click",()=>setF(b.dataset.f)));
+  setF(fk);
+}},
+singleQuiz({q:"Para mostrar numa tela só as amigas que têm 15 anos, o que o app precisa fazer?",o:[
+  {t:"Procurar a gaveta com o rótulo 15",fb:"O rótulo das gavetas é o nome da amiga. A idade está dentro de cada ficha."},
+  {t:"Pegar todos os rótulos do armário Amigas, abrir cada gaveta e olhar o campo idade",ok:true,fb:"Como a idade está dentro das fichas, é preciso abrir todas as gavetas e filtrar pelo campo idade."},
+  {t:"Criar um armário novo só para quem tem 15 anos",fb:"Daria muito trabalho manter um armário para cada idade. Filtrar as fichas resolve com um armário só."}]},"m5q")
+]});
+
+/* Missão 6: desafio */
+const FINALQ=[
+  {q:"O que é um campo de um objeto?",o:["Uma característica que muda de um objeto para outro","Qualquer coisa que todos os objetos têm igual","O nome do armário onde o objeto fica"],a:0,fb:"Campo é o que diferencia um objeto de outro, como o título de um livro."},
+  {q:"Como o telefone de uma amiga deve ser anotado na ficha?",o:["Como número, porque tem algarismos","Como texto, porque ninguém faz conta com telefone"],a:1,fb:"Tipo número é para o que faz sentido calcular ou comparar. Telefone é texto."},
+  {q:"Numa escola com várias alunas de nome igual, qual é o melhor rótulo para a ficha de cada aluna?",o:["O nome","A turma","O número de matrícula"],a:2,fb:"O rótulo precisa ser único. A matrícula é diferente para cada aluna."},
+  {q:"Quando guardamos um dicionário no TinyDB, o que fica dentro da gaveta?",o:["Só o primeiro campo da ficha","A ficha inteira, com pares de chave e valor","Uma lista com os rótulos de todas as gavetas"],a:1,fb:"O dicionário inteiro vai para a gaveta, com todos os pares chave-valor."},
+  {q:"Qual é a diferença entre o rótulo e a chave?",o:["O rótulo identifica a gaveta. A chave identifica um campo dentro da ficha.","São a mesma coisa com nomes diferentes","A chave identifica a gaveta. O rótulo identifica o campo."],a:0,fb:"Rótulo para achar o objeto, chave para achar a informação dentro dele."},
+  {q:"Por que usar um Namespace diferente para amigas e para livros?",o:["Para o app ficar mais rápido de abrir","Para fichas de tipos diferentes não se misturarem nem se substituírem","Porque o TinyDB só aceita um objeto por Namespace"],a:1,fb:"Com armários separados, um rótulo de amiga não substitui um rótulo de livro, e a lista de rótulos de cada armário traz só um tipo de objeto."},
+  {q:"Para listar só os livros de poesia, o app precisa:",o:["Abrir a gaveta com o rótulo poesia","Pegar os rótulos com ObterRótulos, abrir cada gaveta e olhar o campo genero","Mudar o Namespace para poesia"],a:1,fb:"O gênero está dentro das fichas. Por isso o app percorre todas as gavetas e filtra pelo campo genero."}
+];
+M.push({t:"Desafio final",steps:[
+{k:"Verificar",need:"Acerte pelo menos 6 das 7 perguntas para concluir o desafio.",ready:()=>!!flag("m6ok"),render(el){
+  const ans=flag("m6ans")||{};
+  el.innerHTML=`<div class="prose"><p class="lead">Sete perguntas sobre objetos, fichas, dicionários e armários. Para concluir, acerte pelo menos 6.</p></div>
+  <form class="final-quiz" onsubmit="return false">${FINALQ.map((q,i)=>`<div class="qitem" data-i="${i}" role="radiogroup" aria-labelledby="q${i}"><h3 id="q${i}">${i+1}. ${q.q}</h3>${q.o.map((o,j)=>`<label><input type="radio" name="q${i}" value="${j}" ${ans[i]===j?"checked":""}> ${o}</label>`).join("")}<p class="qfb" hidden></p></div>`).join("")}</form>
+  <div class="row" style="margin-top:16px"><button type="button" class="btn btn-run" id="chk">Conferir respostas</button></div>
+  <div class="fb" id="fb" aria-live="polite"></div>`;
+  const fb=$("#fb",el);
+  $$("input",el).forEach(i=>i.addEventListener("change",()=>{const a=flag("m6ans")||{}; a[i.name.slice(1)]=+i.value; flag("m6ans",a); const qi=i.closest(".qitem"); qi.classList.remove("right","wrong"); $(".qfb",qi).hidden=true;}));
+  const check=()=>{
+    const a=flag("m6ans")||{}; let score=0;
+    FINALQ.forEach((q,i)=>{const qi=$(`.qitem[data-i="${i}"]`,el), p=$(".qfb",qi); const right=a[i]===q.a; if(right) score++;
+      qi.classList.toggle("right",right); qi.classList.toggle("wrong",!right); p.hidden=right; p.textContent=a[i]===undefined?"Escolha uma resposta.":q.fb;});
+    if(score>=6){fb.className="fb ok"; fb.innerHTML=`<strong>Você acertou ${score} de 7.</strong> Desafio concluído.`; flag("m6ok",true); updateNav();}
+    else {fb.className="fb err"; fb.innerHTML=`<strong>Você acertou ${score} de 7.</strong> Leia as explicações das perguntas marcadas, mude as respostas e confira de novo.`;}
+  };
+  $("#chk",el).addEventListener("click",check);
+  if(flag("m6ok")) check();
+}}]});
+
+/* ---------- motor ---------- */
+function cur(){return M[P.m-1].steps[P.s]}
+function updateNav(){ const n=$("#next"); if(!n) return; const ok=cur().ready(); n.disabled=!ok; $("#hint").textContent=ok?"":(cur().need||""); }
+function renderTop(){ const done=Math.min(P.unlocked-1,M.length); $("#progtext").textContent=`${done} de ${M.length} missões concluídas`; $("#progbar").style.width=(done/M.length*100)+"%"; }
+function renderTrail(pulse){
+  $("#trail").innerHTML=M.map((m,i)=>{const n=i+1; const st=n<P.unlocked?"done":n===P.unlocked?"open":"locked"; const isCur=!P.view&&n===P.m;
+    return `<li class="st-${st} ${isCur?"cur":""} ${pulse===n?"pulse":""}"><button type="button" data-m="${n}" ${st==="locked"?"disabled":""} ${isCur?'aria-current="step"':""}><span class="dot">${st==="done"?"✓":st==="locked"?lockSvg:n}</span><span class="tt"><span class="tn">Missão ${n}${st==="locked"?", bloqueada":""}</span><span class="tl">${m.t}</span></span></button></li>`}).join("");
+  $$("#trail button").forEach(b=>b.addEventListener("click",()=>{const n=+b.dataset.m; if(n>P.unlocked) return; const same=n===P.m&&!P.view; P.view=null; P.m=n; if(!same) P.s=0; saveP(); render();}));
+}
+function go(m,s){P.view=null;P.m=m;P.s=s;saveP();render();}
+function render(pulse){
+  renderTop(); renderTrail(pulse);
+  const st=$("#stage");
+  if(P.view==="final"){renderFinal(st);return}
+  if(P.view==="done"){renderDone(st);return}
+  const mis=M[P.m-1]; if(P.s>=mis.steps.length) P.s=0;
+  st.innerHTML=`<header class="mhead"><p class="mnum">Missão ${P.m} de ${M.length}</p><h1>${mis.t}</h1>
+  ${mis.steps.length>1?`<ol class="stepbar" aria-label="Etapas da missão">${mis.steps.map((x,i)=>`<li class="${i<P.s?"past":i===P.s?"now":""}" ${i===P.s?'aria-current="step"':""}><span>${i<P.s?"✓":i+1}</span>${x.k}</li>`).join("")}</ol>`:""}</header>
+  <div class="content" id="content"></div>
+  <div class="nav"><button class="btn btn-ghost" id="back" type="button">Voltar</button><p class="hint" id="hint" aria-live="polite"></p><button class="btn btn-primary" id="next" type="button">Continuar</button></div>`;
+  cur().render($("#content"));
+  const back=$("#back"); back.disabled=P.m===1&&P.s===0;
+  back.addEventListener("click",()=>{ if(P.s>0) go(P.m,P.s-1); else if(P.m>1) go(P.m-1,M[P.m-2].steps.length-1); });
+  const next=$("#next");
+  if(P.s===mis.steps.length-1) next.textContent=P.m===M.length?"Concluir o desafio":"Concluir a missão";
+  next.addEventListener("click",()=>{
+    if(!cur().ready()) return;
+    if(P.s<mis.steps.length-1){go(P.m,P.s+1);return}
+    if(P.unlocked<=P.m) P.unlocked=P.m+1;
+    P.view=P.m===M.length?"final":"done"; saveP(); render(P.m+1);
+  });
+  updateNav(); window.scrollTo({top:0,behavior:"auto"});
+}
+function renderDone(st){
+  const n=P.m+1, nm=M[n-1];
+  st.innerHTML=`<div class="donebox"><div class="seal">${checkSvg}</div><p class="mnum">Missão ${P.m} concluída</p><h1 class="bigtitle">${M[P.m-1].t}</h1>
+  <p class="lead">A Missão ${n}, “${nm.t}”, foi desbloqueada na trilha.</p>
+  <div class="final-actions"><button class="btn btn-primary" id="go" type="button">Começar a Missão ${n}</button></div></div>`;
+  $("#go").addEventListener("click",()=>go(n,0)); $("#go").focus();
+}
+function renderFinal(st){
+  ensureAM();
+  st.innerHTML=`<div><div class="seal">${checkSvg}</div>
+  <p class="mnum">${M.length} de ${M.length} missões concluídas</p><h1 class="bigtitle">Você terminou a trilha</h1>
+  <p class="lead" style="max-width:62ch">Na aula, você vai fazer a ficha dos objetos do app e guardá-las em armários do TinyDB. Agora você já sabe o que acontece em cada passo.</p>
+  <div class="final-grid"><div class="prose"><h2 style="font-size:22px;margin:10px 0 14px">O que você viu</h2><ul class="learned">
+  <li><strong>Objetos e campos.</strong> Tudo o que o app guarda é um objeto. Cada característica que muda de um objeto para outro é um campo.</li>
+  <li><strong>A ficha.</strong> Anota o nome de cada campo, o tipo (texto ou número) e um exemplo, e marca o campo que identifica o objeto.</li>
+  <li><strong>Dicionário.</strong> A ficha inteira vai para uma gaveta como pares de chave e valor. O rótulo acha a gaveta e a chave acha o campo.</li>
+  <li><strong>Namespace e filtro.</strong> Cada tipo de objeto tem seu armário. Para listar ou filtrar, o app pega todos os rótulos e abre gaveta por gaveta.</li></ul>
+  <h2 style="font-size:22px;margin:24px 0 14px">Antes de criar a ficha de um objeto, pergunte</h2><ol class="learned">
+  <li>O que aparece sobre esse objeto? O que muda de um para outro?</li>
+  <li>Cada campo é texto ou número?</li>
+  <li>Qual campo é único e vai ser o rótulo?</li>
+  <li>Em qual armário (Namespace) esse objeto vai ficar?</li></ol></div>
+  <div><h2 style="font-size:22px;margin:10px 0 14px">Seu armário Amigas</h2>${cabinetHTML(AM,{title:"Armário Amigas",ns:"Amigas",open:new Set(AM.map(d=>d.r))})}</div></div>
+  <div class="final-actions"><button class="btn btn-ghost" id="rev" type="button">Rever as missões</button><button class="btn btn-ghost" id="rst" type="button">Recomeçar do início</button></div>
+  <p class="small" style="margin-top:12px">Se outra pessoa for usar este computador, clique em Recomeçar do início para apagar o seu progresso.</p></div>`;
+  $("#rev").addEventListener("click",()=>go(1,0));
+  $("#rst").addEventListener("click",resetAll);
+}
+function resetAll(){
+  if(!window.confirm("Isso apaga o progresso e o armário Amigas neste computador. Quer recomeçar?")) return;
+  try{localStorage.removeItem(KP);localStorage.removeItem(KA);}catch(e){}
+  P=freshP(); AM=[]; NS={one:BASE_ONE(),am:BASE_ONE().filter(d=>d.v.nome),lv:BASE_ONE().filter(d=>d.v.titulo),mode:"one",tags:{}}; render();
+}
+$("#reset").addEventListener("click",resetAll);
+if(P.m<1||P.m>M.length){P.m=1;P.s=0;}
+if(P.m>P.unlocked){P.m=Math.min(P.unlocked,M.length);P.s=0;}
+render();
+})();
+</script>
+</body>
+</html>
